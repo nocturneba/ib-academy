@@ -42,7 +42,7 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
 @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideLeft{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
-@keyframes glow{0%,100%{opacity:0.4}50%{opacity:0.8}}
+@keyframes glow{0%,100%{opacity:0.25}50%{opacity:0.8}}
 @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
@@ -77,7 +77,7 @@ nav .cta-sm:hover{background:var(--accent);color:#000}
 .btn-primary{padding:15px 32px;background:var(--accent);color:#000;border:none;border-radius:10px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.3s;letter-spacing:0.02em}
 .btn-primary:hover{background:#d4b06a;transform:translateY(-1px);box-shadow:0 8px 30px rgba(201,165,92,0.25)}
 .btn-secondary{padding:15px 32px;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:10px;font-size:0.95rem;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.3s}
-.btn-secondary:hover{border-color:#3a4260;background:#0f1420}
+.btn-secondary:hover{border-color:#3a4260;background:#faf8f3}
 
 /* SOCIAL PROOF TICKER */
 .ticker-wrap{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px 0;overflow:hidden;margin-top:-1px}
@@ -93,7 +93,7 @@ nav .cta-sm:hover{background:var(--accent);color:#000}
 .feat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px 28px;transition:all 0.4s;position:relative;overflow:hidden}
 .feat-card:hover{border-color:#252d45;transform:translateY(-2px)}
 .feat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity 0.4s}
-.feat-card:hover::after{opacity:0.4}
+.feat-card:hover::after{opacity:0.25}
 .feat-icon{font-size:2rem;margin-bottom:16px;display:block}
 .feat-card h3{margin-bottom:10px;font-size:1.2rem}
 .feat-card p{color:#5a6380;font-size:0.9rem;line-height:1.65}
@@ -116,7 +116,7 @@ nav .cta-sm:hover{background:var(--accent);color:#000}
 .pricing-header p{color:#5a6380;margin-top:14px}
 .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;max-width:760px;margin:0 auto}
 .price-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:36px 30px;position:relative;transition:all 0.3s}
-.price-card.featured{border-color:var(--accent);background:linear-gradient(135deg,#0f1420,#111825)}
+.price-card.featured{border-color:var(--accent);background:linear-gradient(135deg,#faf8f3,#f7f5ef)}
 .price-card.featured::before{content:'POPULAR';position:absolute;top:-10px;right:24px;background:var(--accent);color:#000;font-size:0.65rem;font-weight:700;padding:4px 12px;border-radius:6px;letter-spacing:1px}
 .price-tag{font-size:0.8rem;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px}
 .price-amount{font-family:'Instrument Serif',serif;font-size:3rem;color:var(--heading);line-height:1}
@@ -129,7 +129,7 @@ nav .cta-sm:hover{background:var(--accent);color:#000}
 .price-card .btn-secondary{width:100%;text-align:center;display:block}
 
 /* ======== EMAIL CAPTURE ======== */
-.email-section{background:linear-gradient(135deg,#0d1220,#0a0e18);border-top:1px solid var(--border);position:relative;overflow:hidden}
+.email-section{background:linear-gradient(135deg,#f4f3f0,#f0ede6);border-top:1px solid var(--border);position:relative;overflow:hidden}
 .email-section::before{content:'';position:absolute;top:50%;left:50%;width:800px;height:800px;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(201,165,92,0.04) 0%,transparent 60%);pointer-events:none}
 .email-inner{text-align:center;max-width:520px;margin:0 auto;position:relative;z-index:2}
 .email-inner h2{margin-bottom:14px}
@@ -410,27 +410,23 @@ footer .links a:hover{color:var(--accent)}
     <div class="links">
       <a href="#">Instagram</a>
       <a href="#">Twitter</a>
-      <a href="/cdn-cgi/l/email-protection#afc7cac3c3c0efc6cdcecccecbcac2d681c6c0">Contacto</a>
+      <a href="/cdn-cgi/l/email-protection#5139343d3d3e11383330323035343c287f383e">Contacto</a>
     </div>
   </div>
 </footer>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // Scroll reveal
-// Scroll reveal - progressive enhancement
 const reveals=document.querySelectorAll('.reveal');
-if('IntersectionObserver' in window){
-  reveals.forEach(el=>el.classList.add('hidden'));
-  const observer=new IntersectionObserver((entries)=>{
-    entries.forEach((e,i)=>{
-      if(e.isIntersecting){
-        setTimeout(()=>e.target.classList.remove('hidden'),i*80);
-        observer.unobserve(e.target);
-      }
-    });
-  },{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
-  reveals.forEach(el=>observer.observe(el));
-}
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting){
+      setTimeout(()=>e.target.classList.remove('hidden'),i*80);
+      observer.unobserve(e.target);
+    }
+  });
+},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+reveals.forEach(el=>{el.classList.add('hidden');observer.observe(el)});
 
 // Nav scroll effect
 const nav=document.getElementById('nav');
