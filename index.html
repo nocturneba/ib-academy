@@ -410,53 +410,48 @@ footer .links a:hover{color:var(--accent)}
     <div class="links">
       <a href="#">Instagram</a>
       <a href="#">Twitter</a>
-      <a href="/cdn-cgi/l/email-protection#5139343d3d3e11383330323035343c287f383e">Contacto</a>
+      <a href="mailto:contacto@ibacademy.com">Contacto</a>
     </div>
   </div>
 </footer>
 
 <script>
-// Scroll reveal
-const reveals=document.querySelectorAll('.reveal');
-const observer=new IntersectionObserver((entries)=>{
-  entries.forEach((e,i)=>{
+var reveals=document.querySelectorAll('.reveal');
+var observer=new IntersectionObserver(function(entries){
+  entries.forEach(function(e,i){
     if(e.isIntersecting){
-      setTimeout(()=>e.target.classList.remove('hidden'),i*80);
+      setTimeout(function(){e.target.classList.remove('hidden')},i*80);
       observer.unobserve(e.target);
     }
   });
 },{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
-reveals.forEach(el=>{el.classList.add('hidden');observer.observe(el)});
+reveals.forEach(function(el){el.classList.add('hidden');observer.observe(el)});
 
-// Nav scroll effect
-const nav=document.getElementById('nav');
-window.addEventListener('scroll',()=>{
+var nav=document.getElementById('nav');
+window.addEventListener('scroll',function(){
   nav.classList.toggle('scrolled',window.scrollY>60);
 });
 
-// Email handler
-async function handleEmail(){
-  const input=document.getElementById('email-input');
-  const email=input.value.trim();
-  if(!email||!email.includes('@')){
+function handleEmail(){
+  var input=document.getElementById('email-input');
+  var email=input.value.trim();
+  if(!email||email.indexOf('@')===-1){
     input.style.borderColor='#ef4444';
-    setTimeout(()=>input.style.borderColor='',2000);
+    setTimeout(function(){input.style.borderColor=''},2000);
     return;
   }
-  // Store email (in production, send to your backend/Mailchimp/ConvertKit)
-  console.log('Email captured:',email);
-  
-  // Show success
   document.getElementById('email-form-wrap').style.display='none';
-  const success=document.getElementById('email-success');
-  success.classList.add('show');
-  
-  // Also store locally
+  document.getElementById('email-success').classList.add('show');
   try{
-    const emails=JSON.parse(localStorage.getItem('ib_emails')||'[]');
-    emails.push({email,date:new Date().toISOString()});
+    var emails=JSON.parse(localStorage.getItem('ib_emails')||'[]');
+    emails.push({email:email,date:new Date().toISOString()});
     localStorage.setItem('ib_emails',JSON.stringify(emails));
   }catch(e){}
 }
 
-// Enter key f
+document.getElementById('email-input').addEventListener('keydown',function(e){
+  if(e.key==='Enter')handleEmail();
+});
+</script>
+</body>
+</html>
