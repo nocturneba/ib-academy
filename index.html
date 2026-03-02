@@ -415,7 +415,7 @@ footer .links a:hover{color:var(--accent)}
   </div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // Scroll reveal
 const reveals=document.querySelectorAll('.reveal');
 const observer=new IntersectionObserver((entries)=>{
@@ -435,7 +435,7 @@ window.addEventListener('scroll',()=>{
 });
 
 // Email handler
-function handleEmail(){
+async function handleEmail(){
   const input=document.getElementById('email-input');
   const email=input.value.trim();
   if(!email||!email.includes('@')){
