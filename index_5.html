@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>IB Academy — Dominá Investment Banking</title>
+<meta name="description" content="Aprendé Investment Banking jugando. 34 niveles, desde accounting hasta LBO. Gratis.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏦</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fafaf8;
+  --surface:#ffffff;
+  --border:#e8e5de;
+  --text:#4a4a42;
+  --heading:#1a1a18;
+  --accent:#9a7b3c;
+  --accent2:#7a6230;
+  --blue:#3a6bef;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:#000}
+a{color:var(--accent);text-decoration:none}
+
+/* TYPOGRAPHY */
+h1,h2,h3{font-family:'Instrument Serif',serif;color:var(--heading);font-weight:400}
+h1{font-size:clamp(2.8rem,7vw,5rem);line-height:1.05;letter-spacing:-0.02em}
+h2{font-size:clamp(2rem,4.5vw,3.2rem);line-height:1.15;letter-spacing:-0.01em}
+h3{font-size:clamp(1.3rem,2.5vw,1.6rem);line-height:1.3}
+p{line-height:1.7;font-size:clamp(0.95rem,1.1vw,1.05rem)}
+
+/* LAYOUT */
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+section{padding:100px 0}
+
+/* NOISE TEXTURE */
+body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.25}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideLeft{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes glow{0%,100%{opacity:0.25}50%{opacity:0.8}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+.reveal{opacity:1;transform:translateY(0);transition:opacity 0.8s ease,transform 0.8s ease}
+.reveal.hidden{opacity:0;transform:translateY(30px)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ======== NAV ======== */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 0;transition:all 0.4s;background:transparent}
+nav.scrolled{background:rgba(250,250,248,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 0}
+nav .container{display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Instrument Serif',serif;font-size:1.4rem;color:var(--heading);display:flex;align-items:center;gap:10px}
+.logo span{color:var(--accent)}
+.logo-badge{background:var(--accent);color:#000;font-family:'DM Sans',sans-serif;font-size:0.55rem;font-weight:700;padding:3px 7px;border-radius:4px;letter-spacing:1.5px;text-transform:uppercase}
+nav .cta-sm{padding:10px 24px;background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.3s}
+nav .cta-sm:hover{background:var(--accent);color:#000}
+
+/* ======== HERO ======== */
+.hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding-top:80px}
+.hero::before{content:'';position:absolute;top:-200px;right:-200px;width:700px;height:700px;background:radial-gradient(circle,rgba(201,165,92,0.06) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-100px;left:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(74,124,255,0.04) 0%,transparent 70%);pointer-events:none}
+.hero-content{position:relative;z-index:2;max-width:720px}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:8px 18px 8px 10px;font-size:0.8rem;color:var(--accent);font-weight:500;margin-bottom:28px;animation:fadeUp 0.8s ease 0.1s both}
+.hero-tag::before{content:'';width:8px;height:8px;background:var(--accent);border-radius:50%;animation:glow 2s infinite}
+.hero h1{animation:fadeUp 0.8s ease 0.2s both}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero-sub{font-size:clamp(1.05rem,1.5vw,1.2rem);color:#7a8299;margin:24px 0 36px;max-width:560px;animation:fadeUp 0.8s ease 0.35s both}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;animation:fadeUp 0.8s ease 0.5s both}
+
+/* BUTTONS */
+.btn-primary{padding:15px 32px;background:var(--accent);color:#000;border:none;border-radius:10px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.3s;letter-spacing:0.02em}
+.btn-primary:hover{background:#d4b06a;transform:translateY(-1px);box-shadow:0 8px 30px rgba(201,165,92,0.25)}
+.btn-secondary{padding:15px 32px;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:10px;font-size:0.95rem;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.3s}
+.btn-secondary:hover{border-color:#3a4260;background:#faf8f3}
+
+/* SOCIAL PROOF TICKER */
+.ticker-wrap{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px 0;overflow:hidden;margin-top:-1px}
+.ticker{display:flex;gap:48px;animation:ticker 30s linear infinite;width:max-content}
+.ticker span{font-size:0.85rem;color:#4a5070;white-space:nowrap;font-weight:500;display:flex;align-items:center;gap:8px}
+.ticker span b{color:var(--accent);font-weight:600}
+
+/* ======== FEATURES GRID ======== */
+.features{background:var(--bg)}
+.features-header{text-align:center;max-width:600px;margin:0 auto 60px}
+.features-header p{color:#5a6380;margin-top:16px}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.feat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px 28px;transition:all 0.4s;position:relative;overflow:hidden}
+.feat-card:hover{border-color:#252d45;transform:translateY(-2px)}
+.feat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity 0.4s}
+.feat-card:hover::after{opacity:0.25}
+.feat-icon{font-size:2rem;margin-bottom:16px;display:block}
+.feat-card h3{margin-bottom:10px;font-size:1.2rem}
+.feat-card p{color:#5a6380;font-size:0.9rem;line-height:1.65}
+
+/* ======== LEVELS PREVIEW ======== */
+.levels{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.levels-header{text-align:center;max-width:550px;margin:0 auto 50px}
+.levels-header p{color:#5a6380;margin-top:14px}
+.districts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.district-card{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:22px 20px;display:flex;align-items:center;gap:14px;transition:all 0.3s}
+.district-card:hover{border-color:#252d45}
+.district-icon{font-size:1.6rem;width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.district-info h3{font-size:0.95rem;margin-bottom:3px}
+.district-info p{font-size:0.78rem;color:#4a5070}
+.district-levels{font-size:0.7rem;color:var(--accent);font-weight:600;margin-top:4px;letter-spacing:0.5px;text-transform:uppercase}
+
+/* ======== PRICING ======== */
+.pricing{background:var(--bg)}
+.pricing-header{text-align:center;max-width:600px;margin:0 auto 50px}
+.pricing-header p{color:#5a6380;margin-top:14px}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;max-width:760px;margin:0 auto}
+.price-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:36px 30px;position:relative;transition:all 0.3s}
+.price-card.featured{border-color:var(--accent);background:linear-gradient(135deg,#faf8f3,#f7f5ef)}
+.price-card.featured::before{content:'POPULAR';position:absolute;top:-10px;right:24px;background:var(--accent);color:#000;font-size:0.65rem;font-weight:700;padding:4px 12px;border-radius:6px;letter-spacing:1px}
+.price-tag{font-size:0.8rem;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px}
+.price-amount{font-family:'Instrument Serif',serif;font-size:3rem;color:var(--heading);line-height:1}
+.price-amount small{font-size:1rem;color:#5a6380;font-family:'DM Sans',sans-serif}
+.price-desc{color:#5a6380;font-size:0.9rem;margin:14px 0 24px;line-height:1.6}
+.price-features{list-style:none;margin-bottom:28px}
+.price-features li{padding:8px 0;font-size:0.88rem;color:#8a90a5;display:flex;align-items:center;gap:10px;border-bottom:1px solid #e8e5de}
+.price-features li::before{content:'✓';color:var(--accent);font-weight:700;font-size:0.85rem}
+.price-card .btn-primary{width:100%;text-align:center;display:block}
+.price-card .btn-secondary{width:100%;text-align:center;display:block}
+
+/* ======== EMAIL CAPTURE ======== */
+.email-section{background:linear-gradient(135deg,#f4f3f0,#f0ede6);border-top:1px solid var(--border);position:relative;overflow:hidden}
+.email-section::before{content:'';position:absolute;top:50%;left:50%;width:800px;height:800px;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(201,165,92,0.04) 0%,transparent 60%);pointer-events:none}
+.email-inner{text-align:center;max-width:520px;margin:0 auto;position:relative;z-index:2}
+.email-inner h2{margin-bottom:14px}
+.email-inner p{color:#5a6380;margin-bottom:32px}
+.email-form{display:flex;gap:10px;max-width:440px;margin:0 auto}
+.email-form input{flex:1;padding:14px 18px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--heading);font-size:0.95rem;font-family:inherit;outline:none;transition:border 0.3s}
+.email-form input:focus{border-color:var(--accent)}
+.email-form input::placeholder{color:#3a4260}
+.email-form button{padding:14px 28px;white-space:nowrap}
+.email-note{font-size:0.75rem;color:#3a4260;margin-top:14px}
+.email-success{display:none;animation:fadeUp 0.5s ease}
+.email-success.show{display:block}
+.email-success p{color:var(--accent);font-size:1rem;font-weight:600}
+
+/* ======== FOOTER ======== */
+footer{padding:40px 0;border-top:1px solid var(--border)}
+footer .container{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+footer p{font-size:0.8rem;color:#2a3050}
+footer .links{display:flex;gap:24px}
+footer .links a{font-size:0.8rem;color:#3a4260;transition:color 0.3s}
+footer .links a:hover{color:var(--accent)}
+
+/* RESPONSIVE */
+@media(max-width:640px){
+  section{padding:70px 0}
+  .hero{padding-top:100px;min-height:auto;padding-bottom:60px}
+  .hero h1{font-size:2.4rem}
+  .hero-actions{flex-direction:column}
+  .hero-actions .btn-primary,.hero-actions .btn-secondary{width:100%;text-align:center}
+  .email-form{flex-direction:column}
+  .email-form button{width:100%}
+  .feat-grid{grid-template-columns:1fr}
+  .districts-grid{grid-template-columns:1fr}
+  .pricing-grid{grid-template-columns:1fr}
+  footer .container{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="container">
+    <div class="logo">🏦 IB <span>Academy</span> <span class="logo-badge">Beta</span></div>
+    <button class="cta-sm" onclick="document.getElementById('email-section').scrollIntoView({behavior:'smooth'})">Acceso Gratis →</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-tag">🎮 Aprendé IB jugando — 34 niveles interactivos</div>
+      <h1>Preparate para<br>Investment Banking<br>como un <em>game.</em></h1>
+      <p class="hero-sub">De accounting basics hasta LBO models y mock interviews. Todo lo que necesitás para tu entrevista de IB, en un RPG interactivo que realmente funciona.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="document.getElementById('email-section').scrollIntoView({behavior:'smooth'})">Empezar Gratis →</button>
+        <button class="btn-secondary" onclick="document.getElementById('levels').scrollIntoView({behavior:'smooth'})">Ver Contenido ↓</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker" id="ticker">
+    <span>📊 <b>34</b> niveles interactivos</span>
+    <span>🏦 Accounting, Valuation, DCF, M&A, LBO</span>
+    <span>🧠 <b>120+</b> preguntas de quiz</span>
+    <span>🎯 Simulación de entrevista real</span>
+    <span>📈 Sistema de XP y ranking</span>
+    <span>💼 De Intern a Managing Director</span>
+    <span>🤝 M&A, Accretion/Dilution, Merger Models</span>
+    <span>🏗️ LBO fundamentals hasta model building</span>
+    <span>📊 <b>34</b> niveles interactivos</span>
+    <span>🏦 Accounting, Valuation, DCF, M&A, LBO</span>
+    <span>🧠 <b>120+</b> preguntas de quiz</span>
+    <span>🎯 Simulación de entrevista real</span>
+    <span>📈 Sistema de XP y ranking</span>
+    <span>💼 De Intern a Managing Director</span>
+    <span>🤝 M&A, Accretion/Dilution, Merger Models</span>
+    <span>🏗️ LBO fundamentals hasta model building</span>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="features-header reveal">
+      <h2>¿Por qué <em>IB Academy</em>?</h2>
+      <p>No es un PDF de 200 páginas. No es un curso de video de 40 horas. Es un juego que te enseña haciendo.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card reveal">
+        <span class="feat-icon">🎮</span>
+        <h3>Aprendé Jugando</h3>
+        <p>Cada concepto es un nivel con historia, ejemplos reales de Apple, Microsoft y Tesla, y quiz interactivo con explicaciones.</p>
+      </div>
+      <div class="feat-card reveal">
+        <span class="feat-icon">🏙️</span>
+        <h3>Mapa de Wall Street</h3>
+        <p>Navegá por 9 distritos: desde Financial District hasta The Final Floor. Cada edificio es un área de conocimiento completa.</p>
+      </div>
+      <div class="feat-card reveal">
+        <span class="feat-icon">📈</span>
+        <h3>Progresión Real</h3>
+        <p>Sistema de XP y 11 rangos — de Intern a Partner. Competí con vos mismo y desbloqueá logros mientras aprendés.</p>
+      </div>
+      <div class="feat-card reveal">
+        <span class="feat-icon">🎯</span>
+        <h3>Interview-Ready</h3>
+        <p>Los últimos niveles simulan preguntas reales de entrevista de Goldman, J.P. Morgan y Morgan Stanley. Técnicas + behavioral.</p>
+      </div>
+      <div class="feat-card reveal">
+        <span class="feat-icon">⚡</span>
+        <h3>Sin Relleno</h3>
+        <p>Cada nivel va directo al punto. Conceptos explicados con datos reales, no teoría abstracta. Listo para usar en interviews.</p>
+      </div>
+      <div class="feat-card reveal">
+        <span class="feat-icon">📱</span>
+        <h3>Mobile-First</h3>
+        <p>Diseñado para que practiques desde el celular en el subte, en el break, o antes de dormir. Sin instalación.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LEVELS -->
+<section class="levels" id="levels">
+  <div class="container">
+    <div class="levels-header reveal">
+      <h2>9 Distritos. 34 Niveles.</h2>
+      <p>Todo el conocimiento de IB organizado como un mapa de ciudad. Desde los basics hasta modelos avanzados.</p>
+    </div>
+    <div class="districts-grid">
+      <div class="district-card reveal">
+        <div class="district-icon" style="background:#3b82f612;border:1px solid #3b82f625">🏦</div>
+        <div class="district-info">
+          <h3 style="color:#3b82f6">Financial District</h3>
+          <p>Assets, Liabilities, Equity</p>
+          <div class="district-levels">3 niveles — gratis</div>
+        </div>
+      </div>
+      <div class="district-card reveal">
+        <div class="district-icon" style="background:#8b5cf612;border:1px solid #8b5cf625">📑</div>
+        <div class="district-info">
+          <h3 style="color:#8b5cf6">Accounting Row</h3>
+          <p>IS, BS, CFS, Connections</p>
+          <div class="district-levels">4 niveles — gratis</div>
+        </div>
+      </div>
+      <div class="district-card reveal">
+        <div class="district-icon" style="background:#6366f112;border:1px solid #6366f125">🔍</div>
+        <div class="district-info">
+          <h3 style="color:#6366f1">GAAP Tower</h3>
+          <p>D&A, Goodwill, Deferred Taxes</p>
+          <div class="district-levels">4 niveles — gratis</div>
+        </div>
+      </div>
+      <div class="district-card reveal">
+        <div class="district-icon" style="background:#f59e0b12;border:1px solid #f59e0b25">💎</div>
+        <div class="district-info">
+          <h3 style="color:#f59e0b">Valuation Plaza</h3>
+          <p>EV, Comps, Precedents, Football Field</p>
+          <div class="district-levels">4 niveles — gratis</div>
+        </div>
+      </div>
+      <div class="district-card reveal">
+        <div class="district-icon" style="background:#10b98112;border:1px solid #10b98125">🧮</div>
+        <div class="district-info">
+          <h3 style="color:#10b981">DCF Center</h3>
+          <p>TVM, WACC, FCF, Terminal Value</p>
+          <div class="district-levels">5 niveles — gratis</div>
+        </div>
+      </div>
+      <div class="district-card reveal">
+        <div class="district-icon" style="background:#ec489912;border:1px solid #ec489925">🤝</div>
+        <div class="district-info">
+          <h3 style="color:#ec4899">M&A Avenue</h3>
+          <p>M&A, Accretion/Dilution, Merger Model</p>
+          <div class="district-levels">4 niveles — gratis</div>
+        </div>
+      </div>
+      <div class="district-card reveal">
+        <div class="district-icon" style="background:#ef444412;border:1px solid #ef444425">🏗️</div>
+        <div class="district-info">
+          <h3 style="color:#ef4444">LBO Partners</h3>
+          <p>LBO Fundamentals, Returns, Model</p>
+          <div class="district-levels">3 niveles — gratis</div>
+        </div>
+      </div>
+      <div class="district-card reveal">
+        <div class="district-icon" style="background:#06b6d412;border:1px solid #06b6d425">📊</div>
+        <div class="district-info">
+          <h3 style="color:#06b6d4">Pitch Tower</h3>
+          <p>Pitch Books, Modeling, 3-Statement</p>
+          <div class="district-levels">3 niveles — gratis</div>
+        </div>
+      </div>
+      <div class="district-card reveal">
+        <div class="district-icon" style="background:#f9731612;border:1px solid #f9731625">🎯</div>
+        <div class="district-info">
+          <h3 style="color:#f97316">The Final Floor</h3>
+          <p>TMAY, Technicals, Behavioral, Superday</p>
+          <div class="district-levels">4 niveles — gratis</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="pricing-header reveal">
+      <h2>Elegí tu camino</h2>
+      <p>El juego completo es gratis. El Pro Pack es para los que quieren ir al próximo nivel.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card reveal">
+        <div class="price-tag">Free</div>
+        <div class="price-amount">$0</div>
+        <p class="price-desc">Todo lo que necesitás para arrancar tu prep de IB.</p>
+        <ul class="price-features">
+          <li>34 niveles completos</li>
+          <li>120+ preguntas de quiz</li>
+          <li>Mapa interactivo de Wall Street</li>
+          <li>Sistema de XP y ranking</li>
+          <li>Simulación de entrevista</li>
+          <li>Acceso desde cualquier dispositivo</li>
+        </ul>
+        <button class="btn-secondary" onclick="document.getElementById('email-section').scrollIntoView({behavior:'smooth'})">Empezar Gratis</button>
+      </div>
+      <div class="price-card featured reveal">
+        <div class="price-tag">Pro Pack</div>
+        <div class="price-amount">$19 <small>USD · único pago</small></div>
+        <p class="price-desc">Todo lo free + herramientas para pasar la entrevista.</p>
+        <ul class="price-features">
+          <li>Todo lo del plan Free</li>
+          <li>3 modelos de Excel descargables (DCF, LBO, Merger)</li>
+          <li>50 preguntas adicionales de mock interview</li>
+          <li>Guía "How to Break Into IB" (PDF)</li>
+          <li>Flashcards de conceptos clave</li>
+          <li>Acceso a actualizaciones futuras</li>
+        </ul>
+        <button class="btn-primary" onclick="document.getElementById('email-section').scrollIntoView({behavior:'smooth'})">Obtener Pro Pack →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EMAIL CAPTURE -->
+<section class="email-section" id="email-section">
+  <div class="container">
+    <div class="email-inner reveal">
+      <h2>Empezá ahora. <em>Gratis.</em></h2>
+      <p>Dejá tu email y te mandamos el acceso directo al juego. Sin spam, sin tarjeta, sin bullshit.</p>
+      <div id="email-form-wrap">
+        <div class="email-form">
+          <input type="email" id="email-input" placeholder="tu@email.com" required>
+          <button class="btn-primary" onclick="handleEmail()">Acceder →</button>
+        </div>
+        <p class="email-note">🔒 Tu email queda con nosotros. Cero spam.</p>
+      </div>
+      <div class="email-success" id="email-success">
+        <p style="font-size:2rem;margin-bottom:12px">🎉</p>
+        <p>¡Listo! Revisá tu inbox.</p>
+        <p style="color:#5a6380;font-size:0.85rem;margin-top:8px">Te mandamos el link de acceso. Si no lo ves, revisá spam.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <p>© 2026 IB Academy. Hecho para futuros bankers.</p>
+    <div class="links">
+      <a href="#">Instagram</a>
+      <a href="#">Twitter</a>
+      <a href="/cdn-cgi/l/email-protection#5139343d3d3e11383330323035343c287f383e">Contacto</a>
+    </div>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// Scroll reveal
+const reveals=document.querySelectorAll('.reveal');
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting){
+      setTimeout(()=>e.target.classList.remove('hidden'),i*80);
+      observer.unobserve(e.target);
+    }
+  });
+},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+reveals.forEach(el=>{el.classList.add('hidden');observer.observe(el)});
+
+// Nav scroll effect
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>{
+  nav.classList.toggle('scrolled',window.scrollY>60);
+});
+
+// Email handler
+function handleEmail(){
+  const input=document.getElementById('email-input');
+  const email=input.value.trim();
+  if(!email||!email.includes('@')){
+    input.style.borderColor='#ef4444';
+    setTimeout(()=>input.style.borderColor='',2000);
+    return;
+  }
+  // Store email (in production, send to your backend/Mailchimp/ConvertKit)
+  console.log('Email captured:',email);
+  
+  // Show success
+  document.getElementById('email-form-wrap').style.display='none';
+  const success=document.getElementById('email-success');
+  success.classList.add('show');
+  
+  // Also store locally
+  try{
+    const emails=JSON.parse(localStorage.getItem('ib_emails')||'[]');
+    emails.push({email,date:new Date().toISOString()});
+    localStorage.setItem('ib_emails',JSON.stringify(emails));
+  }catch(e){}
+}
+
+// Enter key f
