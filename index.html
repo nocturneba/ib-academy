@@ -47,7 +47,8 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
-.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.8s ease,transform 0.8s ease}
+.reveal{opacity:1;transform:translateY(0);transition:opacity 0.8s ease,transform 0.8s ease}
+.reveal.hidden{opacity:0;transform:translateY(30px)}
 .reveal.visible{opacity:1;transform:translateY(0)}
 
 /* ======== NAV ======== */
@@ -416,16 +417,20 @@ footer .links a:hover{color:var(--accent)}
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // Scroll reveal
+// Scroll reveal - progressive enhancement
 const reveals=document.querySelectorAll('.reveal');
-const observer=new IntersectionObserver((entries)=>{
-  entries.forEach((e,i)=>{
-    if(e.isIntersecting){
-      setTimeout(()=>e.target.classList.add('visible'),i*80);
-      observer.unobserve(e.target);
-    }
-  });
-},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
-reveals.forEach(el=>observer.observe(el));
+if('IntersectionObserver' in window){
+  reveals.forEach(el=>el.classList.add('hidden'));
+  const observer=new IntersectionObserver((entries)=>{
+    entries.forEach((e,i)=>{
+      if(e.isIntersecting){
+        setTimeout(()=>e.target.classList.remove('hidden'),i*80);
+        observer.unobserve(e.target);
+      }
+    });
+  },{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+  reveals.forEach(el=>observer.observe(el));
+}
 
 // Nav scroll effect
 const nav=document.getElementById('nav');
