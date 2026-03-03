@@ -307,7 +307,7 @@ const sQ=()=>{setQz(true);setQI(0);setAns(null);setShE(false);setCor(0);setStr(0
 const oA=i=>{if(ans!==null)return;setAns(i);const ok=i===curLv.q[qI].c;if(ok){setCor(c=>c+1);setStr(s=>s+1);aXP(20+(str>=2?10:0))}else{setStr(0);setShk(true);setTimeout(()=>setShk(false),500)}setShE(true)};
 const nQ=()=>{if(qI<curLv.q.length-1){setQI(q=>q+1);setAns(null);setShE(false)}else{if(!dn.includes(curLv.id)){setDn(p=>[...p,curLv.id]);aXP(50)}setScreen("results")}};
 
-const MH=1400;
+const MH=1500;
 const hTS=e=>{tRef.current={y:e.touches[0].clientY,sy:my}};
 const hTM=e=>{const dy=tRef.current.y-e.touches[0].clientY;setMy(Math.max(0,Math.min(MH-window.innerHeight+100,tRef.current.sy+dy)))};
 const hW=e=>{setMy(y=>Math.max(0,Math.min(MH-window.innerHeight+100,y+e.deltaY*0.8)))};
@@ -325,15 +325,15 @@ h("button",{onClick:()=>setRu(false),style:{padding:"12px 36px",background:`line
 if(screen==="map"&&!sd){
 const vw=Math.min(520,typeof window!=='undefined'?window.innerWidth:400);
 const blds=[
-{d:DISTRICTS[0],x:vw*0.25,y:1120,w:70,dp:35,ht:90,fl:4},
-{d:DISTRICTS[1],x:vw*0.65,y:1020,w:80,dp:40,ht:110,fl:5},
-{d:DISTRICTS[2],x:vw*0.35,y:900,w:55,dp:28,ht:130,fl:6},
-{d:DISTRICTS[3],x:vw*0.7,y:790,w:90,dp:45,ht:85,fl:3},
-{d:DISTRICTS[4],x:vw*0.3,y:670,w:65,dp:32,ht:115,fl:5},
-{d:DISTRICTS[5],x:vw*0.65,y:560,w:75,dp:38,ht:100,fl:4},
-{d:DISTRICTS[6],x:vw*0.4,y:430,w:60,dp:30,ht:120,fl:5},
-{d:DISTRICTS[7],x:vw*0.7,y:310,w:50,dp:25,ht:140,fl:7},
-{d:DISTRICTS[8],x:vw*0.45,y:170,w:80,dp:40,ht:150,fl:8}
+{d:DISTRICTS[0],x:vw*0.25,y:1220,w:70,dp:35,ht:90,fl:4},
+{d:DISTRICTS[1],x:vw*0.65,y:1110,w:80,dp:40,ht:110,fl:5},
+{d:DISTRICTS[2],x:vw*0.35,y:990,w:55,dp:28,ht:130,fl:6},
+{d:DISTRICTS[3],x:vw*0.7,y:880,w:90,dp:45,ht:85,fl:3},
+{d:DISTRICTS[4],x:vw*0.3,y:760,w:65,dp:32,ht:115,fl:5},
+{d:DISTRICTS[5],x:vw*0.65,y:650,w:75,dp:38,ht:100,fl:4},
+{d:DISTRICTS[6],x:vw*0.4,y:520,w:60,dp:30,ht:120,fl:5},
+{d:DISTRICTS[7],x:vw*0.7,y:400,w:50,dp:25,ht:140,fl:7},
+{d:DISTRICTS[8],x:vw*0.45,y:310,w:80,dp:40,ht:150,fl:8}
 ];
 return h("div",{style:{background:"#0b0e18",height:"100vh",overflow:"hidden",fontFamily:"'Outfit'",maxWidth:520,margin:"0 auto",position:"relative"},onWheel:hW,onTouchStart:hTS,onTouchMove:hTM},
 // Fixed HUD
@@ -377,13 +377,13 @@ h("path",{d:blds.map((b,i)=>`${i===0?'M':'L'}${b.x},${b.y+10}`).join(' '),
 stroke:"#1a2040",strokeWidth:1,fill:"none",strokeDasharray:"8 6",opacity:0.4}),
 
 // Small decorative trees
-[{x:50,y:1180},{x:vw-40,y:950},{x:30,y:750},{x:vw-50,y:620},{x:60,y:480},{x:vw-30,y:350},{x:vw*0.5,y:1070},{x:vw*0.15,y:530},{x:vw*0.85,y:450}].map((t,i)=>
+[{x:50,y:1280},{x:vw-40,y:1050},{x:30,y:850},{x:vw-50,y:720},{x:60,y:580},{x:vw-30,y:350},{x:vw*0.5,y:1170},{x:vw*0.15,y:630},{x:vw*0.85,y:550}].map((t,i)=>
 h("g",{key:`tree${i}`,transform:`translate(${t.x},${t.y})`},
 h("ellipse",{cx:0,cy:-8,rx:6,ry:8,fill:"#0a2618",opacity:0.7}),
 h("rect",{x:-1,y:-3,width:2,height:6,fill:"#1a3a28",opacity:0.5}))),
 
 // Lamp posts
-[{x:vw*0.15,y:1050},{x:vw*0.8,y:860},{x:vw*0.2,y:600},{x:vw*0.75,y:400},{x:vw*0.5,y:250}].map((l,i)=>
+[{x:vw*0.15,y:1150},{x:vw*0.8,y:960},{x:vw*0.2,y:700},{x:vw*0.75,y:500},{x:vw*0.5,y:350}].map((l,i)=>
 h("g",{key:`lp${i}`,transform:`translate(${l.x},${l.y})`},
 h("rect",{x:-1,y:-20,width:2,height:20,fill:"#1a2040"}),
 h("circle",{cx:0,cy:-22,r:3,fill:"#fbbf24",opacity:0.5}),
