@@ -17,6 +17,8 @@ button{font-family:inherit;cursor:pointer}
 @keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 @keyframes twinkle{0%,100%{opacity:0.1}50%{opacity:0.7}}
+@keyframes walk1{0%{transform:rotate(-15deg)}100%{transform:rotate(15deg)}}
+@keyframes walk2{0%{transform:rotate(15deg)}100%{transform:rotate(-15deg)}}
 .iso-bld{transition:filter 0.4s ease;cursor:pointer}
 .iso-bld:hover{filter:brightness(1.2) drop-shadow(0 0 10px var(--glow))!important}
 </style>
@@ -377,7 +379,7 @@ h("path",{d:blds.map((b,i)=>`${i===0?'M':'L'}${b.x},${b.y+10}`).join(' '),
 stroke:"#1a2040",strokeWidth:1,fill:"none",strokeDasharray:"8 6",opacity:0.4}),
 
 // Small decorative trees
-[{x:50,y:1280},{x:vw-40,y:1050},{x:30,y:850},{x:vw-50,y:720},{x:60,y:580},{x:vw-30,y:350},{x:vw*0.5,y:1170},{x:vw*0.15,y:630},{x:vw*0.85,y:550}].map((t,i)=>
+[{x:50,y:1280},{x:vw-40,y:1050},{x:30,y:850},{x:vw-50,y:720},{x:60,y:580},{x:vw-30,y:450},{x:vw*0.5,y:1170},{x:vw*0.15,y:630},{x:vw*0.85,y:550}].map((t,i)=>
 h("g",{key:`tree${i}`,transform:`translate(${t.x},${t.y})`},
 h("ellipse",{cx:0,cy:-8,rx:6,ry:8,fill:"#0a2618",opacity:0.7}),
 h("rect",{x:-1,y:-3,width:2,height:6,fill:"#1a3a28",opacity:0.5}))),
@@ -393,8 +395,19 @@ h("circle",{cx:0,cy:-22,r:8,fill:"#fbbf24",opacity:0.06}))),
 blds.map(b=>{const pr=dP[b.d.id];return h(IsoBld,{key:b.d.id,x:b.x,y:b.y,w:b.w,depth:b.dp,height:b.ht,
 color:b.d.color,roofColor:b.d.color,icon:b.d.icon,label:b.d.name,
 progress:pr.done+"/"+pr.tot,allDone:pr.pct===100,floors:b.fl,
-onClick:()=>setSd(b.d.id)})}),
+onClick:()=>{setChP(p=>({...p,tx:b.x,ty:b.y+30,w:true,dir:b.x>p.x?1:-1}));setTimeout(()=>setSd(b.d.id),600)}})}),
 
+// Walking character - banker with vest and shirt
+h("g",{transform:`translate(${chP.x},${chP.y}) scale(${chP.dir},1)`},
+h("circle",{cx:0,cy:-22,r:6,fill:"#fcd34d"}),
+h("rect",{x:-2,y:-28,width:4,height:3,rx:1,fill:"#1e293b"}),
+h("rect",{x:-7,y:-16,width:14,height:12,rx:2,fill:"#e2e8f0"}),
+h("rect",{x:-5,y:-16,width:10,height:12,rx:1,fill:"#1e40af"}),
+h("line",{x1:0,y1:-10,x2:0,y2:-4,stroke:"#fbbf24",strokeWidth:1.5}),
+h("line",{x1:-4,y1:-4,x2:-6,y2:6,stroke:"#1a1a2e",strokeWidth:2.5,strokeLinecap:"round",style:{transformOrigin:"-4px -4px",animation:chP.w?"walk1 0.35s infinite alternate":"none"}}),
+h("line",{x1:4,y1:-4,x2:6,y2:6,stroke:"#1a1a2e",strokeWidth:2.5,strokeLinecap:"round",style:{transformOrigin:"4px -4px",animation:chP.w?"walk2 0.35s infinite alternate":"none"}}),
+h("line",{x1:-7,y1:-14,x2:-11,y2:-6,stroke:"#e2e8f0",strokeWidth:2,strokeLinecap:"round",style:{transformOrigin:"-7px -14px",animation:chP.w?"walk2 0.35s infinite alternate":"none"}}),
+h("line",{x1:7,y1:-14,x2:11,y2:-6,stroke:"#e2e8f0",strokeWidth:2,strokeLinecap:"round",style:{transformOrigin:"7px -14px",animation:chP.w?"walk1 0.35s infinite alternate":"none"}})),
 // Bottom label
 h("text",{x:vw/2,y:MH-15,textAnchor:"middle",fontSize:9,fill:"#1a2040",fontFamily:"Outfit"},"↕ Scroll para explorar")
 )),
