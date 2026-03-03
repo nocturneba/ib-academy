@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IB Academy — 100 Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--card:#1a2236;--card-hover:#1e2a42;
+  --accent:#3b82f6;--accent2:#10b981;--accent3:#8b5cf6;--accent4:#f59e0b;--accent5:#ef4444;
+  --text:#e2e8f0;--muted:#94a3b8;--dim:#475569;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* HEADER */
+.header{padding:24px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.06);position:sticky;top:0;background:rgba(10,14,26,0.95);backdrop-filter:blur(12px);z-index:100}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff}
+.logo-text{font-weight:700;font-size:18px;letter-spacing:-0.5px}
+.logo-sub{color:var(--muted);font-size:12px;margin-left:8px}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--text);font-family:inherit;font-size:13px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.btn:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.2)}
+.btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-icon{font-size:16px}
+
+/* STATS BAR */
+.stats{padding:16px 32px;display:flex;gap:24px;align-items:center;border-bottom:1px solid rgba(255,255,255,0.04)}
+.stat{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.stat-val{color:var(--text);font-weight:700;font-family:'JetBrains Mono',monospace}
+.progress-bar{flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;max-width:200px}
+.progress-fill{height:100%;background:var(--accent2);border-radius:2px;transition:width .4s ease}
+
+/* CATEGORY PILLS */
+.cats{padding:16px 32px;display:flex;gap:8px;flex-wrap:wrap}
+.cat-pill{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;border:1px solid rgba(255,255,255,0.08);background:transparent;color:var(--muted)}
+.cat-pill:hover{border-color:rgba(255,255,255,0.2);color:var(--text)}
+.cat-pill.active{color:#fff;border-color:transparent}
+.cat-pill[data-cat="all"].active{background:var(--accent)}
+.cat-pill[data-cat="accounting"].active{background:var(--accent4)}
+.cat-pill[data-cat="valuation"].active{background:var(--accent)}
+.cat-pill[data-cat="dcf"].active{background:var(--accent2)}
+.cat-pill[data-cat="ma"].active{background:var(--accent5)}
+.cat-pill[data-cat="lbo"].active{background:var(--accent3)}
+.cat-pill[data-cat="behavioral"].active{background:#6366f1}
+.cat-pill[data-cat="advanced"].active{background:var(--dim)}
+
+/* FLASHCARD AREA */
+.card-area{display:flex;flex-direction:column;align-items:center;padding:40px 32px 24px;min-height:400px}
+.card-counter{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--dim);margin-bottom:16px;letter-spacing:1px}
+.card-container{perspective:1200px;width:100%;max-width:640px;height:340px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.card-inner{position:relative;width:100%;height:100%;transition:transform 0.6s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
+.card-container.flipped .card-inner{transform:rotateY(180deg)}
+.card-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:16px;display:flex;flex-direction:column;padding:32px 36px;overflow-y:auto}
+.card-front{background:linear-gradient(135deg,var(--card) 0%,#1e293b 100%);border:1px solid rgba(255,255,255,0.08)}
+.card-back{background:linear-gradient(135deg,#0c2d1f 0%,#0f2a1e 100%);border:1px solid rgba(16,185,129,0.2);transform:rotateY(180deg)}
+.card-cat{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-cat-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.card-front .card-cat{color:var(--accent)}
+.card-back .card-cat{color:var(--accent2)}
+.card-num{position:absolute;top:24px;right:28px;font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;color:rgba(255,255,255,0.04)}
+.card-question{font-size:20px;font-weight:700;line-height:1.4;flex:1;display:flex;align-items:center;letter-spacing:-0.3px}
+.card-answer{font-size:15px;line-height:1.65;flex:1;display:flex;align-items:center;color:#d1fae5}
+.card-hint{font-size:12px;color:var(--dim);text-align:center;margin-top:auto;padding-top:12px}
+.card-front .card-hint{color:rgba(255,255,255,0.2)}
+.card-back .card-hint{color:rgba(16,185,129,0.3)}
+
+/* NAVIGATION */
+.nav{display:flex;gap:12px;margin-top:24px;align-items:center}
+.nav-btn{width:48px;height:48px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:var(--surface);color:var(--text);font-size:20px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.nav-btn:hover{background:var(--card);border-color:rgba(255,255,255,0.2)}
+.nav-btn:disabled{opacity:.3;cursor:default}
+.nav-btn:disabled:hover{background:var(--surface)}
+.mark-btns{display:flex;gap:8px;margin-left:24px}
+.mark-btn{padding:8px 16px;border-radius:8px;border:none;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
+.mark-btn.know{background:rgba(16,185,129,0.15);color:#6ee7b7}
+.mark-btn.know:hover{background:rgba(16,185,129,0.25)}
+.mark-btn.review{background:rgba(239,68,68,0.15);color:#fca5a5}
+.mark-btn.review:hover{background:rgba(239,68,68,0.25)}
+
+/* KEYBOARD HINTS */
+.keys{display:flex;gap:16px;margin-top:20px;justify-content:center}
+.key{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)}
+.kbd{padding:2px 8px;border-radius:4px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-family:'JetBrains Mono',monospace;font-size:11px}
+
+@media(max-width:700px){
+  .header{padding:16px;flex-direction:column;gap:12px}
+  .stats{padding:12px 16px;flex-wrap:wrap;gap:12px}
+  .cats{padding:12px 16px}
+  .card-area{padding:24px 16px 16px}
+  .card-container{height:300px}
+  .card-face{padding:24px}
+  .card-question{font-size:17px}
+  .card-answer{font-size:14px}
+  .nav{flex-wrap:wrap;justify-content:center}
+  .mark-btns{margin-left:0}
+  .keys{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">IB</div>
+    <span class="logo-text">IB Academy</span>
+    <span class="logo-sub">100 Flashcards</span>
+  </div>
+  <div class="controls">
+    <button class="btn" id="langBtn" onclick="toggleLang()"><span class="btn-icon">🌐</span> <span id="langLabel">ES</span></button>
+    <button class="btn" id="shuffleBtn" onclick="shuffle()"><span class="btn-icon">🔀</span> Aleatorio</button>
+    <button class="btn" id="resetBtn" onclick="resetProgress()"><span class="btn-icon">↺</span> Reset</button>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat">Progreso: <span class="stat-val" id="seenCount">0</span>/<span id="totalCount">100</span></div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="stat">✅ <span class="stat-val" id="knowCount">0</span></div>
+  <div class="stat">🔄 <span class="stat-val" id="reviewCount">0</span></div>
+</div>
+
+<div class="cats" id="catBar"></div>
+
+<div class="card-area">
+  <div class="card-counter" id="cardCounter">1 / 100</div>
+  <div class="card-container" id="card" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+      <div class="card-face card-front">
+        <div class="card-cat"><span class="card-cat-dot" id="frontDot"></span> <span id="frontCat"></span></div>
+        <div class="card-num" id="frontNum"></div>
+        <div class="card-question" id="frontQ"></div>
+        <div class="card-hint">Click para ver respuesta →</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-cat"><span class="card-cat-dot" style="background:var(--accent2)"></span> <span>RESPUESTA</span></div>
+        <div class="card-answer" id="backA"></div>
+        <div class="card-hint">Click para volver →</div>
+      </div>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="nav-btn" id="prevBtn" onclick="prev()">←</button>
+    <button class="nav-btn" id="nextBtn" onclick="next()">→</button>
+    <div class="mark-btns">
+      <button class="mark-btn know" onclick="markKnow()">✅ Lo sé</button>
+      <button class="mark-btn review" onclick="markReview()">🔄 Repasar</button>
+    </div>
+  </div>
+  <div class="keys">
+    <div class="key"><span class="kbd">←</span><span class="kbd">→</span> Navegar</div>
+    <div class="key"><span class="kbd">Space</span> Flip</div>
+    <div class="key"><span class="kbd">1</span> Lo sé</div>
+    <div class="key"><span class="kbd">2</span> Repasar</div>
+  </div>
+</div>
+
+<script>
+const CARDS_ES = [
+// ACCOUNTING (1-25)
+{id:1,cat:"accounting",q:"¿Cuáles son los 3 estados financieros?",a:"Income Statement (rentabilidad), Balance Sheet (activos/pasivos en un momento), y Cash Flow Statement (movimiento de cash en Operating, Investing, Financing)."},
+{id:2,cat:"accounting",q:"¿Cuál es la ecuación fundamental del Balance Sheet?",a:"Assets = Liabilities + Shareholders' Equity. Todo lo que posee la empresa = lo que debe + lo que queda para accionistas."},
+{id:3,cat:"accounting",q:"¿Qué es EBITDA?",a:"Earnings Before Interest, Taxes, Depreciation & Amortization. La métrica operativa más usada en IB. Proxy de cash flow operativo."},
+{id:4,cat:"accounting",q:"¿Qué es D&A y por qué se suma de vuelta en el cash flow?",a:"Depreciation & Amortization. Es un gasto no-cash que reduce Net Income pero no sale plata. Se suma de vuelta en el CFS para reflejar el cash real."},
+{id:5,cat:"accounting",q:"¿Cómo se conectan los 3 estados financieros?",a:"Net Income → CFS como starting point. Ajustes (D&A, WC, CapEx) → cambio en cash → actualiza Cash en BS. NI también → Retained Earnings en BS."},
+{id:6,cat:"accounting",q:"$10 de D&A extra → ¿qué pasa en los 3 estados? (Tax 25%)",a:"IS: EBIT -$10, NI -$7.50. CFS: NI -$7.50 + D&A +$10 = cash +$2.50. BS: PP&E -$10, Cash +$2.50, RE -$7.50. Cuadra."},
+{id:7,cat:"accounting",q:"¿Qué es Working Capital?",a:"NWC = Accounts Receivable + Inventory - Accounts Payable. Cash atado en operaciones diarias. Aumento = salida de cash."},
+{id:8,cat:"accounting",q:"¿Qué es Goodwill?",a:"Precio de Compra - Fair Value de Activos Netos. Activo intangible en el BS. Se testea anualmente por impairment."},
+{id:9,cat:"accounting",q:"¿Qué es Deferred Revenue?",a:"Plata recibida pero no ganada aún. Es un PASIVO en el BS que se reconoce como revenue a medida que se entrega el servicio."},
+{id:10,cat:"accounting",q:"¿Cash vs Accrual Accounting?",a:"Cash: reconocés cuando se mueve el dinero. Accrual (GAAP): cuando se gana/incurre, independiente del cash. GAAP usa accrual."},
+{id:11,cat:"accounting",q:"Si un estado financiero, ¿cuál elegís?",a:"Cash Flow Statement. Muestra realidad del cash, más difícil de manipular. Podés inferir rentabilidad (CFO), inversiones (CFI) y financiamiento (CFF)."},
+{id:12,cat:"accounting",q:"¿Qué es stock-based compensation?",a:"Compensación en acciones, no cash. Gasto no-cash que reduce NI. Se suma de vuelta en CFS. Debate: ¿gasto real por dilución?"},
+{id:13,cat:"accounting",q:"¿Qué es Deferred Tax Liability?",a:"Impuestos que debés pero no pagaste aún. Surge cuando pagás menos impuestos ahora de lo que reportás en books. Pasivo en BS."},
+{id:14,cat:"accounting",q:"¿Diferencia entre Gross Profit y EBITDA?",a:"Gross Profit = Revenue - COGS (costos directos). EBITDA = Gross Profit - SG&A (gastos operativos) + D&A. EBITDA captura toda la operación."},
+{id:15,cat:"accounting",q:"¿Qué son los 5 pasos de revenue recognition (ASC 606)?",a:"(1) Identificar contrato, (2) Identificar performance obligations, (3) Determinar precio, (4) Asignar a cada obligation, (5) Reconocer al cumplir."},
+{id:16,cat:"accounting",q:"¿Qué es CapEx y dónde aparece?",a:"Capital Expenditures — inversión en activos fijos. Aparece en CFS (Investing Activities). Aumenta PP&E en BS. NO aparece en IS directamente."},
+{id:17,cat:"accounting",q:"¿Cuál es la diferencia entre EBIT y EBITDA?",a:"EBIT = EBITDA - D&A. EBIT incluye depreciación, EBITDA no. EBITDA es mejor proxy de cash flow operativo porque excluye gasto no-cash."},
+{id:18,cat:"accounting",q:"¿Qué es Net Debt?",a:"Total Debt - Cash & Equivalents. Puente entre Enterprise Value y Equity Value. Representa la deuda 'neta' después de considerar el cash disponible."},
+{id:19,cat:"accounting",q:"¿Qué pasa si el inventario sube $10?",a:"BS: Inventory +$10, Cash -$10 (pagaste por el inventario). NWC sube → salida de cash en CFS. IS no cambia hasta que vendés."},
+{id:20,cat:"accounting",q:"¿Qué es una write-down / impairment?",a:"Reducción del valor de un activo en el BS (ej: Goodwill). Genera un gasto no-cash en el IS. Se suma de vuelta en CFS. No afecta cash real."},
+// VALUATION (21-45)
+{id:21,cat:"valuation",q:"¿Cuáles son los 3 métodos de valuación?",a:"(1) Comparable Companies (Comps), (2) Precedent Transactions, (3) DCF. Se presentan juntos en un 'football field'."},
+{id:22,cat:"valuation",q:"¿Qué es Enterprise Value?",a:"Valor total para TODOS los inversores (deuda + equity). EV = Market Cap + Deuda Neta + Preferred + Minority Interest."},
+{id:23,cat:"valuation",q:"¿Qué es Equity Value?",a:"Valor solo para ACCIONISTAS. Equity Value = EV - Deuda Neta. Market Cap es la versión más simple."},
+{id:24,cat:"valuation",q:"¿Por qué EV/EBITDA y no P/E para comparar?",a:"EV/EBITDA es capital-structure neutral — no se distorsiona por diferencias en deuda. P/E se afecta por leverage. Manzanas con manzanas."},
+{id:25,cat:"valuation",q:"¿Qué método da valuación más alta?",a:"Generalmente: Precedent Transactions > DCF > Comps. Precedents incluyen prima de control (20-40%). Pero depende del caso."},
+{id:26,cat:"valuation",q:"¿Cuándo NO usarías un DCF?",a:"Startups sin cash flows, empresas en distress, bancos (deuda es el negocio), o sin info suficiente para proyectar. También si TV >85% del total."},
+{id:27,cat:"valuation",q:"Regla de consistencia en múltiplos",a:"Numerador y denominador para el mismo grupo. EV con métricas pre-deuda (EBITDA, Revenue). Equity con post-deuda (NI, EPS). NUNCA mezclar."},
+{id:28,cat:"valuation",q:"¿Cómo elegís empresas comparables?",a:"Misma industria, tamaño similar, perfil de crecimiento comparable, márgenes similares, misma geografía. Empezá amplio, filtrá."},
+{id:29,cat:"valuation",q:"¿Qué es la prima de control?",a:"Premium pagado sobre precio de mercado en una adquisición. Típico 20-40%. Por eso Precedent Transactions dan valor más alto que Comps."},
+{id:30,cat:"valuation",q:"¿Por qué sumamos Deuda al calcular EV?",a:"Porque si comprás la empresa, asumís su deuda. Y restamos Cash porque al comprar, te quedás con el cash que ya tiene."},
+// DCF (31-45)
+{id:31,cat:"dcf",q:"¿Qué es un DCF?",a:"Discounted Cash Flow. Valúa una empresa descontando sus Free Cash Flows futuros a valor presente usando WACC como tasa de descuento."},
+{id:32,cat:"dcf",q:"Fórmula del Unlevered Free Cash Flow",a:"UFCF = NOPAT + D&A - CapEx - Cambio en NWC. Cash disponible para TODOS los inversores (debt + equity)."},
+{id:33,cat:"dcf",q:"¿Qué es NOPAT?",a:"Net Operating Profit After Tax = EBIT × (1 - Tax Rate). Ganancia operativa neta, neutral a estructura de capital."},
+{id:34,cat:"dcf",q:"¿Qué es WACC?",a:"Weighted Average Cost of Capital. WACC = E/(E+D) × Re + D/(E+D) × Rd × (1-t). Mezcla costo equity (CAPM) + costo deuda after-tax."},
+{id:35,cat:"dcf",q:"¿Qué es CAPM?",a:"Capital Asset Pricing Model. Re = Rf + Beta × (Rm - Rf). Calcula el costo del equity usando risk-free rate, beta y market risk premium."},
+{id:36,cat:"dcf",q:"¿Qué es el Terminal Value?",a:"Valor de la empresa después del período de proyección. Gordon Growth: TV = FCF₅ × (1+g) / (WACC-g). Típicamente 60-80% del EV total."},
+{id:37,cat:"dcf",q:"¿Qué pasa si bajás el WACC?",a:"El valor SUBE. Descontás menos → VP más alto. También sube TV porque (WACC-g) se achica. Pequeños cambios → gran impacto."},
+{id:38,cat:"dcf",q:"¿Qué es Beta?",a:"Mide volatilidad de una acción vs el mercado. Beta 1 = igual. >1 = más volátil. Se usa en CAPM para calcular costo de equity."},
+{id:39,cat:"dcf",q:"¿Levered vs Unlevered Beta?",a:"Levered = riesgo operativo + financiero. Unlevered = solo operativo. Bu = BL / (1+(1-t)×D/E). Permite comparar riesgo entre empresas."},
+{id:40,cat:"dcf",q:"¿Qué es la tasa de crecimiento terminal (g)?",a:"Tasa de crecimiento perpetuo después del período de proyección. No debe superar crecimiento del PBI (~2-3%). Muy sensible en el modelo."},
+{id:41,cat:"dcf",q:"Puente EV → Equity Value → Precio",a:"EV = Suma PV FCFs + PV TV. Equity = EV - Deuda Neta. Precio por Acción = Equity Value / Acciones Diluidas."},
+{id:42,cat:"dcf",q:"¿Por qué el FCF es 'unlevered'?",a:"Porque no resta intereses — el efecto de la deuda ya está capturado en el WACC. Así valúa la operación independiente de cómo se financia."},
+{id:43,cat:"dcf",q:"¿Cómo sabés si tu DCF es razonable?",a:"Sanity checks: TV <80% del total, precio implícito cerca del mercado, growth rates convergen a GDP, márgenes justificables, exit multiple razonable."},
+{id:44,cat:"dcf",q:"¿Dos métodos para Terminal Value?",a:"(1) Gordon Growth: FCF×(1+g)/(WACC-g). (2) Exit Multiple: EBITDA último año × múltiplo. Usá ambos para cross-check."},
+{id:45,cat:"dcf",q:"¿Por qué el factor de descuento es 1/(1+WACC)^n?",a:"Convierte cash futuro a valor presente. Un dólar en 5 años vale menos que hoy por el costo de oportunidad del capital."},
+// M&A (46-65)
+{id:46,cat:"ma",q:"¿Qué es un deal acretivo?",a:"El EPS del comprador SUBE después del deal. Pro Forma EPS > Standalone EPS. Generalmente visto como positivo por el mercado."},
+{id:47,cat:"ma",q:"¿Qué es un deal dilutivo?",a:"El EPS del comprador BAJA. Necesitás justificar con sinergias o valor estratégico a largo plazo."},
+{id:48,cat:"ma",q:"3 drivers de acreción/dilución",a:"(1) P/E relativos — comprador P/E > target P/E → acretivo en stock. (2) Costo de financiamiento. (3) Sinergias after-tax."},
+{id:49,cat:"ma",q:"¿Cash vs Stock como pago?",a:"Cash: no diluye pero genera deuda/intereses. Stock: no deuda pero diluye accionistas. Stock si acción sobrevaluada, cash si subvaluada."},
+{id:50,cat:"ma",q:"¿Qué son sinergias?",a:"Beneficios de combinar empresas. Costos: eliminar duplicados. Revenue: cross-selling. Costos más fáciles de lograr. Descontá ~50%."},
+{id:51,cat:"ma",q:"¿Qué es una fairness opinion?",a:"Carta de banco independiente diciendo que el precio del deal es 'justo' para accionistas. Protege al board de demandas."},
+{id:52,cat:"ma",q:"Fases del proceso M&A (sell-side)",a:"(1) Prep: NDA, CIM, buyer list. (2) 1ra ronda: presentations, IOIs. (3) 2da ronda: due diligence, final bids. (4) Negociación y cierre."},
+{id:53,cat:"ma",q:"¿Qué es un CIM?",a:"Confidential Information Memorandum. Doc de 50-100 páginas con info detallada del target. Se entrega después del NDA. Analysts lo arman."},
+{id:54,cat:"ma",q:"¿Qué es una poison pill?",a:"Defensa anti-takeover. Si hostile buyer supera un %, otros accionistas compran con descuento → diluyen al hostile. Fuerza negociación con board."},
+{id:55,cat:"ma",q:"¿Merger vs Acquisition?",a:"Merger: dos se combinan en nueva entidad. Acquisition: uno compra al otro. En práctica casi todos son acquisitions, el 'merger of equals' es raro."},
+{id:56,cat:"ma",q:"¿Qué pasa con la deuda del target?",a:"Generalmente se refinancia o paga al cierre. Change-of-control clauses pueden exigir pago anticipado."},
+{id:57,cat:"ma",q:"Walk me through acreción/dilución",a:"(1) EPS standalone comprador. (2) Offer value, mix cash/stock, shares nuevas. (3) PF NI = buyer + target + synergies - interest. (4) PF EPS = PF NI / PF Shares. (5) Comparar."},
+{id:58,cat:"ma",q:"¿Por qué una empresa compraría otra?",a:"Sinergias, nuevos mercados/productos, tecnología/talento, eliminar competencia, diversificación, o usar cash/acciones sobrevaluadas."},
+{id:59,cat:"ma",q:"¿Qué es due diligence?",a:"Análisis exhaustivo del target antes de cerrar. Financiero, legal, operativo, comercial. Busca confirmar la tesis y encontrar riesgos ocultos."},
+{id:60,cat:"ma",q:"¿Buy-side vs Sell-side advisory?",a:"Sell-side: subasta competitiva para maximizar precio. Fee ~1-2%. Buy-side: encontrar targets, valuar, negociar. Fee ~0.5-1%."},
+// LBO (61-80)
+{id:61,cat:"lbo",q:"¿Qué es un LBO?",a:"Leveraged Buyout. PE fund compra empresa con ~60-70% deuda + ~30-40% equity. Cash flow de la empresa paga la deuda. Exit en 3-7 años."},
+{id:62,cat:"lbo",q:"3 fuentes de retorno en un LBO",a:"(1) Debt paydown — empresa paga deuda con FCF. (2) EBITDA growth — crecimiento orgánico + mejoras. (3) Multiple expansion — vender a mayor múltiplo."},
+{id:63,cat:"lbo",q:"¿Qué es MOIC?",a:"Multiple on Invested Capital = Equity de Salida / Equity de Entrada. '¿Cuántas veces multipliqué?' Target PE: 2.5x+."},
+{id:64,cat:"lbo",q:"¿Qué es IRR?",a:"Internal Rate of Return = MOIC^(1/años) - 1. Retorno anualizado. Target PE: 20%+."},
+{id:65,cat:"lbo",q:"Quick math: 2.5x MOIC en 5 años = ¿IRR?",a:"2.5^(1/5) - 1 ≈ 20%. Reglas: 2x/3yr≈26%, 2x/5yr≈15%, 3x/3yr≈44%, 3x/5yr≈25%."},
+{id:66,cat:"lbo",q:"¿Buen candidato a LBO?",a:"Cash flows estables, posición fuerte, bajo CapEx, oportunidad de mejora operativa, activos como colateral, management bueno, exit claro."},
+{id:67,cat:"lbo",q:"¿Qué es un dividend recap?",a:"La empresa emite deuda nueva y paga dividendo al PE fund. Cristaliza retornos parciales sin vender. Riesgo: sobreapalancamiento."},
+{id:68,cat:"lbo",q:"Estructura típica de capital en LBO",a:"Senior Debt: 3-4x EBITDA (tasa baja, prioridad alta). Sub/Mezz: 1-2x (tasa alta). Total: 4-6x. Equity: el resto."},
+{id:69,cat:"lbo",q:"¿Cómo se paga la deuda en un LBO?",a:"Con el Free Cash Flow de la empresa: Net Income + D&A - CapEx - cambio NWC. FCF se destina a amortizar deuda senior primero."},
+{id:70,cat:"lbo",q:"¿Qué es un add-on acquisition?",a:"PE fund compra empresas más chicas para agregar a su portfolio company. Crecimiento inorgánico. Si compra a menor múltiplo = 'multiple arbitrage'."},
+{id:71,cat:"lbo",q:"¿Exit strategies en un LBO?",a:"(1) Venta a estratégico (strategic sale). (2) IPO. (3) Secondary buyout (venta a otro PE). (4) Recapitalización."},
+{id:72,cat:"lbo",q:"¿Qué es un covenant?",a:"Restricción en el contrato de deuda. Ej: mantener Deuda/EBITDA <4x, Interest Coverage >2x. Si se viola, default técnico."},
+{id:73,cat:"lbo",q:"¿Por qué la deuda amplifica retornos?",a:"Porque ponés menos equity propio. Si EV sube, toda la ganancia va al equity (deuda se paga fijo). Leverage = amplificador en ambas direcciones."},
+{id:74,cat:"lbo",q:"FCF para debt paydown — fórmula",a:"FCF = Net Income + D&A - CapEx - Cambio NWC. Cash disponible después de operaciones e inversiones para pagar deuda."},
+{id:75,cat:"lbo",q:"¿Qué es PIK interest?",a:"Payment-In-Kind. Intereses que se acumulan en el principal en vez de pagarse en cash. Preserva cash flow pero aumenta la deuda total."},
+// BEHAVIORAL (76-85)
+{id:76,cat:"behavioral",q:"¿Cómo estructurás 'Tell me about yourself'?",a:"3 partes en 90 seg: (1) Background breve. (2) Cómo te interesaste en IB — experiencia concreta. (3) Por qué este banco/grupo."},
+{id:77,cat:"behavioral",q:"¿Qué es el método STAR?",a:"Situation (contexto), Task (tu rol), Action (qué hiciste), Result (resultado cuantificable). Para preguntas de 'tell me about a time when...'"},
+{id:78,cat:"behavioral",q:"'¿Por qué IB?' — buenas razones",a:"Desafío intelectual, aprender modeling/valuación, exposición a industrias, training y mentorship, opcionalidad de carrera. NUNCA solo 'por la plata'."},
+{id:79,cat:"behavioral",q:"'¿Mayor debilidad?' — cómo responder",a:"Algo real pero no fatal. Ej: 'Me cuesta delegar, estoy trabajando en confiar más en mi equipo.' Mostrá autoconciencia + progreso."},
+{id:80,cat:"behavioral",q:"'¿Dónde te ves en 5 años?'",a:"'Creciendo en el equipo, dominando ejecución de deals, tomando más responsabilidad en origination.' NO digas 'en PE' aunque sea tu plan."},
+// ADVANCED (81-100)
+{id:81,cat:"advanced",q:"¿Cómo valuarías un banco?",a:"NO EV/EBITDA ni DCF estándar. Usá P/E, P/Book, P/Tangible Book, y DDM (Dividend Discount Model). ROE es la métrica clave."},
+{id:82,cat:"advanced",q:"¿Empresa con earnings negativos — cómo valuar?",a:"EV/Revenue, métricas de industria (usuarios, GMV), DCF con proyecciones a profitability, precedent transactions, o liquidation value."},
+{id:83,cat:"advanced",q:"¿Deuda vs Equity — cuándo emitir cada una?",a:"Deuda: si tasas bajas, cash flows estables, y querés no diluir. Equity: si acción sobrevaluada, leverage alto, o necesitás flexibilidad."},
+{id:84,cat:"advanced",q:"¿Qué es el Rule of 40?",a:"Para SaaS: Revenue Growth % + EBITDA Margin % > 40% = saludable. Balancea crecimiento con rentabilidad."},
+{id:85,cat:"advanced",q:"¿Qué es un football field?",a:"Gráfico de barras horizontal que muestra rangos de valuación de cada método (Comps, Precedents, DCF). Presentación estándar en pitch books."},
+{id:86,cat:"advanced",q:"¿Qué es NAV y cuándo se usa?",a:"Net Asset Value = Fair Value de Assets - Liabilities. Se usa para Real Estate (REITs), empresas de recursos naturales, y holding companies."},
+{id:87,cat:"advanced",q:"¿Qué es un 3-Statement Model?",a:"Modelo que conecta Income Statement, Balance Sheet y Cash Flow Statement. Base para DCF y LBO. El modelo fundamental en IB."},
+{id:88,cat:"advanced",q:"¿LTM vs NTM?",a:"LTM = Last Twelve Months (trailing, real). NTM = Next Twelve Months (forward, proyectado). NTM es más relevante pero depende de estimaciones."},
+{id:89,cat:"advanced",q:"¿Qué es diluted shares?",a:"Acciones totales incluyendo opciones, warrants y convertibles 'in the money'. Se usa para calcular EPS diluido y Equity Value."},
+{id:90,cat:"advanced",q:"¿Qué es ROIC y por qué importa?",a:"Return on Invested Capital = NOPAT / (Total Debt + Equity - Cash). Mide eficiencia de todo el capital. Si ROIC > WACC, creás valor."},
+{id:91,cat:"advanced",q:"¿Qué es FFO en Real Estate?",a:"Funds From Operations = Net Income + D&A - Gains on Sales. Reemplaza NI para REITs porque D&A es enorme en real estate y distorsiona NI."},
+{id:92,cat:"advanced",q:"¿Qué es un Sum-of-the-Parts (SOTP)?",a:"Valuación por partes: valuás cada división de un conglomerado por separado con distintos múltiplos/métodos, y sumás. Útil para empresas diversificadas."},
+{id:93,cat:"advanced",q:"¿Qué es un Contribution Analysis?",a:"Análisis en mergers que compara cuánto contribuye cada empresa a la pro forma (revenue, EBITDA, NI) vs cuánto ownership recibe. Test de fairness."},
+{id:94,cat:"advanced",q:"¿Qué es un 52-Week High/Low?",a:"Precio máximo y mínimo de la acción en el último año. Referencia rápida de valuación de mercado. Se incluye en football fields."},
+{id:95,cat:"advanced",q:"¿Qué es un Equity Research Report?",a:"Análisis de un analista de research sobre una acción: recomendación (Buy/Hold/Sell), target price, modelo, y tesis de inversión."},
+{id:96,cat:"advanced",q:"¿Qué es un Leveraged Recap?",a:"Empresa emite deuda para pagar dividendo extraordinario a accionistas. Similar a dividend recap en LBO pero para empresas públicas."},
+{id:97,cat:"advanced",q:"¿Qué es un Reverse Merger?",a:"Empresa privada adquiere una shell company pública para listarse sin hacer un IPO tradicional. Más rápido y barato pero más escrutinio."},
+{id:98,cat:"advanced",q:"¿Cómo afecta una recompra de acciones al EPS?",a:"Menos acciones en circulación → EPS sube (mismo NI ÷ menos shares). También sube P/E si el precio no ajusta proporcionalmente."},
+{id:99,cat:"advanced",q:"¿Qué es un Tender Offer?",a:"Oferta directa a los accionistas para comprar sus acciones a un precio específico (generalmente con prima). Bypass del board. Puede ser hostile."},
+{id:100,cat:"advanced",q:"¿Cuáles son las principales métricas de crédito?",a:"Debt/EBITDA (leverage), Interest Coverage (EBITDA/Interest), Fixed Charge Coverage, Debt/Equity. Determinan credit rating y capacidad de endeudamiento."},
+];
+
+const CARDS_EN = [
+{id:1,cat:"accounting",q:"What are the 3 financial statements?",a:"Income Statement (profitability), Balance Sheet (assets/liabilities snapshot), Cash Flow Statement (cash movement: Operating, Investing, Financing)."},
+{id:2,cat:"accounting",q:"What is the fundamental Balance Sheet equation?",a:"Assets = Liabilities + Shareholders' Equity. Everything the company owns = what it owes + what belongs to shareholders."},
+{id:3,cat:"accounting",q:"What is EBITDA?",a:"Earnings Before Interest, Taxes, Depreciation & Amortization. The most used operating metric in IB. Proxy for operating cash flow."},
+{id:4,cat:"accounting",q:"What is D&A and why is it added back in cash flow?",a:"Depreciation & Amortization. Non-cash expense reducing NI but no cash leaves. Added back in CFS to reflect real cash generated."},
+{id:5,cat:"accounting",q:"How do the 3 financial statements connect?",a:"NI → CFS as starting point. Adjustments (D&A, WC, CapEx) → change in cash → updates Cash on BS. NI also → Retained Earnings on BS."},
+{id:6,cat:"accounting",q:"$10 extra D&A → walk through 3 statements (25% tax)",a:"IS: EBIT -$10, NI -$7.50. CFS: NI -$7.50 + D&A +$10 = cash +$2.50. BS: PP&E -$10, Cash +$2.50, RE -$7.50. Balances."},
+{id:7,cat:"accounting",q:"What is Working Capital?",a:"NWC = Accounts Receivable + Inventory - Accounts Payable. Cash tied up in daily operations. Increase = cash outflow."},
+{id:8,cat:"accounting",q:"What is Goodwill?",a:"Purchase Price - Fair Value of Net Assets. Intangible asset on BS. Tested annually for impairment."},
+{id:9,cat:"accounting",q:"What is Deferred Revenue?",a:"Cash received but not yet earned. LIABILITY on BS, recognized as revenue as the service is delivered over time."},
+{id:10,cat:"accounting",q:"Cash vs Accrual Accounting?",a:"Cash: recognize when money moves. Accrual (GAAP): when earned/incurred regardless of cash. GAAP requires accrual."},
+{id:11,cat:"accounting",q:"One financial statement only — which?",a:"Cash Flow Statement. Shows cash reality, harder to manipulate. Infer profitability (CFO), investments (CFI), financing (CFF)."},
+{id:12,cat:"accounting",q:"What is stock-based compensation?",a:"Compensation in stock, not cash. Non-cash expense reducing NI. Added back in CFS. Debate: real expense due to dilution?"},
+{id:13,cat:"accounting",q:"What is a Deferred Tax Liability?",a:"Taxes owed but not yet paid. Arises when you pay less tax now than reported on books. Liability on BS."},
+{id:14,cat:"accounting",q:"Gross Profit vs EBITDA?",a:"Gross Profit = Revenue - COGS (direct costs). EBITDA = Gross Profit - SG&A (operating expenses) + D&A. EBITDA captures full operations."},
+{id:15,cat:"accounting",q:"5 steps of revenue recognition (ASC 606)?",a:"(1) Identify contract, (2) Identify performance obligations, (3) Determine price, (4) Allocate to each obligation, (5) Recognize when satisfied."},
+{id:16,cat:"accounting",q:"What is CapEx and where does it appear?",a:"Capital Expenditures — investment in fixed assets. CFS (Investing). Increases PP&E on BS. Does NOT appear on IS directly."},
+{id:17,cat:"accounting",q:"EBIT vs EBITDA?",a:"EBIT = EBITDA - D&A. EBIT includes depreciation, EBITDA does not. EBITDA better proxy for operating cash flow (excludes non-cash)."},
+{id:18,cat:"accounting",q:"What is Net Debt?",a:"Total Debt - Cash & Equivalents. Bridges EV to Equity Value. Represents 'net' debt after considering available cash."},
+{id:19,cat:"accounting",q:"Inventory increases by $10 — what happens?",a:"BS: Inventory +$10, Cash -$10. NWC up → cash outflow in CFS. IS unchanged until you sell it."},
+{id:20,cat:"accounting",q:"What is a write-down / impairment?",a:"Reduction in asset value on BS (e.g., Goodwill). Non-cash charge on IS. Added back in CFS. No real cash impact."},
+{id:21,cat:"valuation",q:"What are the 3 valuation methods?",a:"(1) Comparable Companies (Comps), (2) Precedent Transactions, (3) DCF. Presented together in a 'football field'."},
+{id:22,cat:"valuation",q:"What is Enterprise Value?",a:"Total value for ALL investors (debt + equity). EV = Market Cap + Net Debt + Preferred + Minority Interest."},
+{id:23,cat:"valuation",q:"What is Equity Value?",a:"Value for SHAREHOLDERS only. Equity Value = EV - Net Debt. Market Cap is the simplest form."},
+{id:24,cat:"valuation",q:"Why EV/EBITDA instead of P/E?",a:"EV/EBITDA is capital-structure neutral — not distorted by leverage differences. P/E affected by debt. Apples-to-apples."},
+{id:25,cat:"valuation",q:"Which method gives highest valuation?",a:"Generally: Precedent Transactions > DCF > Comps. Precedents include control premium (20-40%). But case-dependent."},
+{id:26,cat:"valuation",q:"When NOT to use a DCF?",a:"Startups without cash flows, distressed companies, banks (debt is the business), insufficient data. Also if TV >85% of total."},
+{id:27,cat:"valuation",q:"Consistency rule for multiples",a:"Numerator and denominator for same group. EV with pre-debt metrics (EBITDA, Revenue). Equity with post-debt (NI, EPS). NEVER mix."},
+{id:28,cat:"valuation",q:"How to select comparable companies?",a:"Same industry, similar size, comparable growth, similar margins, same geography. Start broad, then filter."},
+{id:29,cat:"valuation",q:"What is the control premium?",a:"Premium paid over market price in an acquisition. Typical 20-40%. Why Precedent Transactions give higher values than Comps."},
+{id:30,cat:"valuation",q:"Why add Debt when calculating EV?",a:"Because buying the company means assuming its debt. Subtract Cash because you get the cash it already has."},
+{id:31,cat:"dcf",q:"What is a DCF?",a:"Discounted Cash Flow. Values a company by discounting future Free Cash Flows to present value using WACC."},
+{id:32,cat:"dcf",q:"Unlevered Free Cash Flow formula",a:"UFCF = NOPAT + D&A - CapEx - Change in NWC. Cash available to ALL investors (debt + equity)."},
+{id:33,cat:"dcf",q:"What is NOPAT?",a:"Net Operating Profit After Tax = EBIT × (1 - Tax Rate). Operating profit, capital-structure neutral."},
+{id:34,cat:"dcf",q:"What is WACC?",a:"Weighted Average Cost of Capital. WACC = E/(E+D) × Re + D/(E+D) × Rd × (1-t). Blends equity (CAPM) + after-tax debt cost."},
+{id:35,cat:"dcf",q:"What is CAPM?",a:"Capital Asset Pricing Model. Re = Rf + Beta × (Rm - Rf). Calculates cost of equity using risk-free rate, beta, market risk premium."},
+{id:36,cat:"dcf",q:"What is Terminal Value?",a:"Value beyond projection period. Gordon Growth: TV = FCF5 × (1+g) / (WACC-g). Typically 60-80% of total EV."},
+{id:37,cat:"dcf",q:"What happens if WACC decreases?",a:"Value goes UP. Less discounting → higher PV. TV also rises as (WACC-g) shrinks. Small changes → big impact."},
+{id:38,cat:"dcf",q:"What is Beta?",a:"Measures stock volatility vs market. Beta 1 = same. >1 = more volatile. Used in CAPM for cost of equity."},
+{id:39,cat:"dcf",q:"Levered vs Unlevered Beta?",a:"Levered = business + financial risk. Unlevered = business only. Bu = BL / (1+(1-t)×D/E). Compares risk across companies."},
+{id:40,cat:"dcf",q:"What is the terminal growth rate (g)?",a:"Perpetual growth after projection period. Should not exceed GDP growth (~2-3%). Very sensitive in the model."},
+{id:41,cat:"dcf",q:"EV → Equity Value → Price bridge",a:"EV = Sum PV FCFs + PV TV. Equity = EV - Net Debt. Price = Equity Value / Diluted Shares Outstanding."},
+{id:42,cat:"dcf",q:"Why is FCF 'unlevered'?",a:"Because we don't subtract interest — debt effect is captured in WACC. Values the operation independent of financing."},
+{id:43,cat:"dcf",q:"How to sanity-check a DCF?",a:"TV <80% of total, implied price near market, growth converges to GDP, margins justifiable, exit multiple reasonable."},
+{id:44,cat:"dcf",q:"Two methods for Terminal Value?",a:"(1) Gordon Growth: FCF×(1+g)/(WACC-g). (2) Exit Multiple: final year EBITDA × multiple. Use both to cross-check."},
+{id:45,cat:"dcf",q:"Why is discount factor 1/(1+WACC)^n?",a:"Converts future cash to present value. A dollar in 5 years is worth less than today due to opportunity cost of capital."},
+{id:46,cat:"ma",q:"What is an accretive deal?",a:"Buyer's EPS goes UP after the deal. Pro Forma EPS > Standalone EPS. Generally viewed positively by the market."},
+{id:47,cat:"ma",q:"What is a dilutive deal?",a:"Buyer's EPS goes DOWN. Need to justify with synergies or long-term strategic value."},
+{id:48,cat:"ma",q:"3 drivers of accretion/dilution",a:"(1) Relative P/E — buyer P/E > target P/E → accretive in stock. (2) Financing cost. (3) After-tax synergies."},
+{id:49,cat:"ma",q:"Cash vs Stock as payment?",a:"Cash: no dilution but creates debt/interest. Stock: no debt but dilutes shareholders. Stock if overvalued, cash if undervalued."},
+{id:50,cat:"ma",q:"What are synergies?",a:"Benefits from combining. Cost: eliminate duplicates. Revenue: cross-selling. Cost synergies easier to achieve. Discount ~50%."},
+{id:51,cat:"ma",q:"What is a fairness opinion?",a:"Letter from independent bank stating deal price is 'fair' to shareholders. Protects board from lawsuits."},
+{id:52,cat:"ma",q:"M&A process phases (sell-side)",a:"(1) Prep: NDA, CIM, buyer list. (2) Round 1: presentations, IOIs. (3) Round 2: DD, final bids. (4) Negotiation & close."},
+{id:53,cat:"ma",q:"What is a CIM?",a:"Confidential Information Memorandum. 50-100 page detailed target profile. Delivered after NDA. Analysts build it."},
+{id:54,cat:"ma",q:"What is a poison pill?",a:"Anti-takeover defense. If hostile buyer exceeds threshold, others buy at discount → dilute hostile. Forces board negotiation."},
+{id:55,cat:"ma",q:"Merger vs Acquisition?",a:"Merger: combine into new entity. Acquisition: one buys other. In practice almost all are acquisitions; true 'merger of equals' is rare."},
+{id:56,cat:"ma",q:"What happens to target's debt?",a:"Generally refinanced or paid at closing. Change-of-control clauses may require early repayment."},
+{id:57,cat:"ma",q:"Walk through accretion/dilution",a:"(1) Buyer standalone EPS. (2) Offer value, cash/stock mix, new shares. (3) PF NI = buyer+target+synergies-interest. (4) PF EPS = PF NI / PF Shares. (5) Compare."},
+{id:58,cat:"ma",q:"Why would a company acquire another?",a:"Synergies, new markets/products, technology/talent, eliminate competitor, diversification, deploy cash/overvalued stock."},
+{id:59,cat:"ma",q:"What is due diligence?",a:"Exhaustive target analysis before closing. Financial, legal, operational, commercial. Confirm thesis and find hidden risks."},
+{id:60,cat:"ma",q:"Buy-side vs Sell-side advisory?",a:"Sell-side: competitive auction, maximize price. Fee ~1-2%. Buy-side: find targets, value, negotiate. Fee ~0.5-1%."},
+{id:61,cat:"lbo",q:"What is an LBO?",a:"Leveraged Buyout. PE fund buys company with ~60-70% debt + ~30-40% equity. Company FCF pays debt. Exit in 3-7 years."},
+{id:62,cat:"lbo",q:"3 sources of LBO returns",a:"(1) Debt paydown — company FCF reduces debt. (2) EBITDA growth — organic + improvements. (3) Multiple expansion — sell at higher multiple."},
+{id:63,cat:"lbo",q:"What is MOIC?",a:"Multiple on Invested Capital = Exit Equity / Entry Equity. 'How many times did I multiply?' PE target: 2.5x+."},
+{id:64,cat:"lbo",q:"What is IRR?",a:"Internal Rate of Return = MOIC^(1/years) - 1. Annualized return. PE target: 20%+."},
+{id:65,cat:"lbo",q:"Quick math: 2.5x MOIC in 5 years = IRR?",a:"2.5^(1/5) - 1 ≈ 20%. Rules: 2x/3yr≈26%, 2x/5yr≈15%, 3x/3yr≈44%, 3x/5yr≈25%."},
+{id:66,cat:"lbo",q:"Good LBO candidate?",a:"Stable cash flows, strong position, low CapEx, operational improvement opportunity, tangible collateral, good management, clear exit."},
+{id:67,cat:"lbo",q:"What is a dividend recap?",a:"Company issues new debt, pays dividend to PE fund. Crystallize partial returns without selling. Risk: overleveraging."},
+{id:68,cat:"lbo",q:"Typical LBO capital structure?",a:"Senior: 3-4x EBITDA (low rate, high priority). Sub/Mezz: 1-2x (high rate). Total: 4-6x. Equity: the rest."},
+{id:69,cat:"lbo",q:"How is debt repaid in an LBO?",a:"With company FCF: NI + D&A - CapEx - change NWC. FCF goes to amortize senior debt first."},
+{id:70,cat:"lbo",q:"What is an add-on acquisition?",a:"PE fund buys smaller companies to add to portfolio company. Inorganic growth. If bought at lower multiple = 'multiple arbitrage'."},
+{id:71,cat:"lbo",q:"LBO exit strategies?",a:"(1) Strategic sale. (2) IPO. (3) Secondary buyout (sell to another PE). (4) Recapitalization."},
+{id:72,cat:"lbo",q:"What is a covenant?",a:"Restriction in debt contract. E.g.: maintain Debt/EBITDA <4x, Interest Coverage >2x. Breach = technical default."},
+{id:73,cat:"lbo",q:"Why does debt amplify returns?",a:"Less equity invested. If EV rises, all gain goes to equity (debt is fixed). Leverage = amplifier in both directions."},
+{id:74,cat:"lbo",q:"FCF for debt paydown formula",a:"FCF = Net Income + D&A - CapEx - Change NWC. Cash available after operations and investments to pay debt."},
+{id:75,cat:"lbo",q:"What is PIK interest?",a:"Payment-In-Kind. Interest accrues to principal instead of cash payment. Preserves cash flow but increases total debt."},
+{id:76,cat:"behavioral",q:"How to structure 'Tell me about yourself'?",a:"3 parts, 90 sec: (1) Brief background. (2) How you got interested in IB — specific experience. (3) Why this bank/group."},
+{id:77,cat:"behavioral",q:"What is the STAR method?",a:"Situation (context), Task (your role), Action (what you did), Result (quantifiable outcome). For 'tell me about a time...' questions."},
+{id:78,cat:"behavioral",q:"'Why IB?' — good reasons",a:"Intellectual challenge, learning modeling/valuation, industry exposure, training/mentorship, career optionality. NEVER just 'for money'."},
+{id:79,cat:"behavioral",q:"'Greatest weakness?' — how to answer",a:"Something real but not fatal. E.g.: 'I struggle to delegate, working on trusting my team more.' Show self-awareness + progress."},
+{id:80,cat:"behavioral",q:"'Where do you see yourself in 5 years?'",a:"'Growing in the team, mastering deal execution, taking more origination responsibility.' Don't say 'in PE' even if that's the plan."},
+{id:81,cat:"advanced",q:"How to value a bank?",a:"NOT EV/EBITDA or standard DCF. Use P/E, P/Book, P/Tangible Book, and DDM (Dividend Discount Model). ROE is key metric."},
+{id:82,cat:"advanced",q:"Value a company with negative earnings?",a:"EV/Revenue, industry metrics (users, GMV), DCF projecting path to profitability, precedent transactions, or liquidation value."},
+{id:83,cat:"advanced",q:"Debt vs Equity — when to issue each?",a:"Debt: low rates, stable CF, avoid dilution. Equity: overvalued stock, high leverage, need flexibility."},
+{id:84,cat:"advanced",q:"What is the Rule of 40?",a:"For SaaS: Revenue Growth % + EBITDA Margin % > 40% = healthy. Balances growth with profitability."},
+{id:85,cat:"advanced",q:"What is a football field?",a:"Horizontal bar chart showing valuation ranges from each method (Comps, Precedents, DCF). Standard pitch book presentation."},
+{id:86,cat:"advanced",q:"What is NAV and when is it used?",a:"Net Asset Value = Fair Value Assets - Liabilities. Used for Real Estate (REITs), natural resources, holding companies."},
+{id:87,cat:"advanced",q:"What is a 3-Statement Model?",a:"Model connecting IS, BS, and CFS. Foundation for DCF and LBO. The fundamental IB model."},
+{id:88,cat:"advanced",q:"LTM vs NTM?",a:"LTM = Last Twelve Months (trailing, actual). NTM = Next Twelve Months (forward, projected). NTM more relevant but estimate-dependent."},
+{id:89,cat:"advanced",q:"What are diluted shares?",a:"Total shares including in-the-money options, warrants, convertibles. Used for diluted EPS and Equity Value."},
+{id:90,cat:"advanced",q:"What is ROIC and why does it matter?",a:"Return on Invested Capital = NOPAT / (Debt + Equity - Cash). If ROIC > WACC, company creates value."},
+{id:91,cat:"advanced",q:"What is FFO in Real Estate?",a:"Funds From Operations = NI + D&A - Gains on Sales. Replaces NI for REITs because D&A is huge and distorts NI."},
+{id:92,cat:"advanced",q:"What is Sum-of-the-Parts (SOTP)?",a:"Value each division separately with different multiples/methods, then sum. Useful for diversified conglomerates."},
+{id:93,cat:"advanced",q:"What is Contribution Analysis?",a:"In mergers: compares how much each company contributes to pro forma (revenue, EBITDA, NI) vs ownership received. Fairness test."},
+{id:94,cat:"advanced",q:"What is 52-Week High/Low?",a:"Stock's max and min price over last year. Quick market valuation reference. Included in football fields."},
+{id:95,cat:"advanced",q:"What is an Equity Research Report?",a:"Analyst's analysis of a stock: recommendation (Buy/Hold/Sell), target price, model, investment thesis."},
+{id:96,cat:"advanced",q:"What is a Leveraged Recap?",a:"Company issues debt to pay extraordinary dividend to shareholders. Similar to LBO dividend recap but for public companies."},
+{id:97,cat:"advanced",q:"What is a Reverse Merger?",a:"Private company acquires public shell to list without traditional IPO. Faster, cheaper, but more scrutiny."},
+{id:98,cat:"advanced",q:"How does a share buyback affect EPS?",a:"Fewer shares → EPS rises (same NI ÷ fewer shares). P/E may also rise if price doesn't adjust proportionally."},
+{id:99,cat:"advanced",q:"What is a Tender Offer?",a:"Direct offer to shareholders to buy shares at specific price (usually premium). Bypasses board. Can be hostile."},
+{id:100,cat:"advanced",q:"Key credit metrics?",a:"Debt/EBITDA (leverage), Interest Coverage (EBITDA/Interest), Fixed Charge Coverage, Debt/Equity. Determine rating and borrowing capacity."},
+];
+
+const CATS = {all:'Todas',accounting:'Accounting',valuation:'Valuación',dcf:'DCF',ma:'M&A',lbo:'LBO',behavioral:'Behavioral',advanced:'Avanzado'};
+const CATS_EN = {all:'All',accounting:'Accounting',valuation:'Valuation',dcf:'DCF',ma:'M&A',lbo:'LBO',behavioral:'Behavioral',advanced:'Advanced'};
+const CAT_COLORS = {accounting:'var(--accent4)',valuation:'var(--accent)',dcf:'var(--accent2)',ma:'var(--accent5)',lbo:'var(--accent3)',behavioral:'#6366f1',advanced:'var(--dim)'};
+
+let lang='es', cards=CARDS_ES, filtered=[...cards], idx=0, flipped=false;
+let known=new Set(), review=new Set(), seen=new Set();
+
+function init(){
+  renderCats();
+  renderCard();
+  updateStats();
+}
+
+function renderCats(){
+  const bar=document.getElementById('catBar');
+  const labels=lang==='es'?CATS:CATS_EN;
+  bar.innerHTML='';
+  Object.entries(labels).forEach(([k,v])=>{
+    const p=document.createElement('button');
+    p.className='cat-pill'+(k==='all'?' active':'');
+    p.dataset.cat=k;p.textContent=v;
+    p.onclick=()=>filterCat(k);
+    bar.appendChild(p);
+  });
+}
+
+function filterCat(c){
+  document.querySelectorAll('.cat-pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===c));
+  filtered=c==='all'?[...cards]:cards.filter(x=>x.cat===c);
+  idx=0;flipped=false;renderCard();
+}
+
+function renderCard(){
+  if(!filtered.length)return;
+  const c=filtered[idx];
+  document.getElementById('cardCounter').textContent=`${idx+1} / ${filtered.length}`;
+  document.getElementById('frontQ').textContent=c.q;
+  document.getElementById('backA').textContent=c.a;
+  document.getElementById('frontNum').textContent=c.id;
+  const catLabel=lang==='es'?CATS[c.cat]:CATS_EN[c.cat];
+  document.getElementById('frontCat').textContent=catLabel;
+  document.getElementById('frontDot').style.background=CAT_COLORS[c.cat]||'var(--accent)';
+  document.getElementById('card').classList.remove('flipped');
+  flipped=false;
+  seen.add(c.id);
+  updateStats();
+  document.getElementById('prevBtn').disabled=idx===0;
+}
+
+function flipCard(){
+  flipped=!flipped;
+  document.getElementById('card').classList.toggle('flipped',flipped);
+}
+
+function next(){if(idx<filtered.length-1){idx++;renderCard()}}
+function prev(){if(idx>0){idx--;renderCard()}}
+
+function markKnow(){
+  const c=filtered[idx];known.add(c.id);review.delete(c.id);updateStats();
+  if(idx<filtered.length-1)next();
+}
+function markReview(){
+  const c=filtered[idx];review.add(c.id);known.delete(c.id);updateStats();
+  if(idx<filtered.length-1)next();
+}
+
+function updateStats(){
+  document.getElementById('seenCount').textContent=seen.size;
+  document.getElementById('totalCount').textContent=cards.length;
+  document.getElementById('knowCount').textContent=known.size;
+  document.getElementById('reviewCount').textContent=review.size;
+  document.getElementById('progressFill').style.width=`${(seen.size/cards.length)*100}%`;
+}
+
+function toggleLang(){
+  lang=lang==='es'?'en':'es';
+  cards=lang==='es'?CARDS_ES:CARDS_EN;
+  document.getElementById('langLabel').textContent=lang.toUpperCase();
+  // Keep same category filter
+  const activeCat=document.querySelector('.cat-pill.active')?.dataset.cat||'all';
+  filtered=activeCat==='all'?[...cards]:cards.filter(x=>x.cat===activeCat);
+  if(idx>=filtered.length)idx=0;
+  renderCats();
+  document.querySelector(`.cat-pill[data-cat="${activeCat}"]`)?.classList.add('active');
+  renderCard();
+  // Update UI labels
+  const hints=lang==='es';
+  document.querySelector('.card-front .card-hint').textContent=hints?'Click para ver respuesta →':'Click to see answer →';
+  document.querySelector('.card-back .card-hint').textContent=hints?'Click para volver →':'Click to go back →';
+  document.querySelector('.mark-btn.know').textContent=hints?'✅ Lo sé':'✅ Got it';
+  document.querySelector('.mark-btn.review').textContent=hints?'🔄 Repasar':'🔄 Review';
+  document.getElementById('shuffleBtn').innerHTML=hints?'<span class="btn-icon">🔀</span> Aleatorio':'<span class="btn-icon">🔀</span> Shuffle';
+}
+
+function shuffle(){
+  filtered=[...filtered].sort(()=>Math.random()-0.5);
+  idx=0;renderCard();
+}
+
+function resetProgress(){
+  known.clear();review.clear();seen.clear();idx=0;renderCard();updateStats();
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.code==='ArrowRight')next();
+  else if(e.code==='ArrowLeft')prev();
+  else if(e.code==='Space'){e.preventDefault();flipCard();}
+  else if(e.key==='1')markKnow();
+  else if(e.key==='2')markReview();
+});
+
+init();
+</script>
+</body>
+</html>
