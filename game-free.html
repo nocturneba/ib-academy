@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>IB Academy Free — Wall Street RPG</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏦</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0e18;--card:#10142a;--border:#1a1f3a;--text:#d4d8e8;--muted:#4a5070}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);overflow:hidden;height:100vh;width:100vw;position:fixed}
+button{font-family:inherit;cursor:pointer}
+::-webkit-scrollbar{display:none}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes twinkle{0%,100%{opacity:0.1}50%{opacity:0.7}}
+.iso-bld{transition:filter 0.4s ease;cursor:pointer}
+.iso-bld:hover{filter:brightness(1.2) drop-shadow(0 0 10px var(--glow))!important}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script>window.FREE_MODE=true;window.MAX_FREE_LEVELS=2;</script><style>.paywall-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;font-family:system-ui}.paywall-box{background:linear-gradient(135deg,#1a1a2e,#16213e);border:2px solid #ffd700;border-radius:20px;padding:40px;text-align:center;max-width:420px;margin:20px}.paywall-box h2{color:#ffd700;font-size:28px;margin-bottom:15px}.paywall-box p{color:#ccc;font-size:16px;line-height:1.6;margin-bottom:20px}.paywall-btn{display:inline-block;background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;font-weight:bold;font-size:18px;padding:15px 40px;border-radius:12px;text-decoration:none;margin:8px;cursor:pointer;border:none}.paywall-btn:hover{transform:scale(1.05)}.paywall-btn.secondary{background:linear-gradient(135deg,#4a90d9,#357abd);color:white}</style></head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useEffect,useCallback,useRef,useMemo}=React;
+const h=React.createElement;
+const SK="ib_academy_v4";
+const load=()=>{try{return JSON.parse(localStorage.getItem(SK))||null}catch{return null}};
+const save=d=>{try{localStorage.setItem(SK,JSON.stringify(d))}catch{}};
+
+const RANKS=[
+{title:"Intern",minXP:0,icon:"📋",color:"#64748b"},
+{title:"Analyst I",minXP:150,icon:"📊",color:"#3b82f6"},
+{title:"Analyst II",minXP:400,icon:"📈",color:"#6366f1"},
+{title:"Analyst III",minXP:700,icon:"🔬",color:"#8b5cf6"},
+{title:"Associate",minXP:1100,icon:"💼",color:"#a855f7"},
+{title:"Sr. Associate",minXP:1600,icon:"🎯",color:"#f59e0b"},
+{title:"VP",minXP:2200,icon:"🏛️",color:"#10b981"},
+{title:"Senior VP",minXP:3000,icon:"⚡",color:"#06b6d4"},
+{title:"Director",minXP:4000,icon:"👔",color:"#ef4444"},
+{title:"MD",minXP:5500,icon:"🏆",color:"#f97316"},
+{title:"Partner",minXP:7500,icon:"👑",color:"#fbbf24"}
+];
+
+const DISTRICTS=[
+{id:"basics",name:"Financial District",sub:"Fundamentos",color:"#3b82f6",icon:"🏦"},
+{id:"statements",name:"Accounting Row",sub:"Estados Financieros",color:"#8b5cf6",icon:"📑"},
+{id:"accounting",name:"GAAP Tower",sub:"Accounting Profundo",color:"#6366f1",icon:"🔍"},
+{id:"valuation",name:"Valuation Plaza",sub:"Métodos de Valuación",color:"#f59e0b",icon:"💎"},
+{id:"dcf",name:"DCF Center",sub:"Discounted Cash Flow",color:"#10b981",icon:"🧮"},
+{id:"ma",name:"M&A Avenue",sub:"Fusiones & Adquisiciones",color:"#ec4899",icon:"🤝"},
+{id:"lbo",name:"LBO Partners",sub:"Leveraged Buyouts",color:"#ef4444",icon:"🏗️"},
+{id:"pitchbook",name:"Pitch Tower",sub:"Pitch Books & Modeling",color:"#06b6d4",icon:"📊"},
+{id:"interview",name:"The Final Floor",sub:"Entrevista Final",color:"#f97316",icon:"🎯"}
+];
+
+const LEVELS=[
+{id:1,d:"basics",t:"¿Qué es un Asset?",s:"Lo que posee",icon:"💰",col:"#3b82f6",
+ls:[{id:"l1",t:"Assets",c:{st:"Primer día en Goldman. 'Antes de tocar un modelo, entendé qué tiene una empresa.'",cn:"Asset = todo lo que una empresa POSEE con valor económico. Current (<1 año) vs Non-Current (>1 año).",ex:[{n:"Cash",v:"$48B",c:"Apple",i:"💵",d:"Plata lista"},{n:"Inventario",v:"$6.3B",c:"Apple",i:"📦",d:"iPhones en depósito"},{n:"PP&E",v:"$43B",c:"Apple",i:"🏭",d:"Oficinas, fábricas"},{n:"Intangibles",v:"$49B",c:"MSFT",i:"💡",d:"Patentes, marcas"}],k:"Current: cash, inventario, AR. Non-Current: PP&E, intangibles, inversiones LP."}}],
+q:[{q:"iPhone en depósito listo para vender:",o:["Current Asset","Non-Current Asset","Liability","Equity"],c:0,e:"Inventario = Current Asset."},{q:"Edificio de oficinas de Apple:",o:["Current Asset","Non-Current Asset","Liability","Revenue"],c:1,e:"PP&E = Non-Current."},{q:"¿Cuál NO es un asset?",o:["Cash","Cuentas x Cobrar","Cuentas x PAGAR","Inventario"],c:2,e:"CxP = Liability."}]},
+
+{id:2,d:"basics",t:"¿Qué es un Liability?",s:"Lo que debe",icon:"📋",col:"#3b82f6",
+ls:[{id:"l2",t:"Liabilities",c:{st:"'Los assets son la mitad. ¿De dónde sacó la plata?'",cn:"Liability = todo lo que DEBE. Current (<1 año) y Non-Current (>1 año).",ex:[{n:"Deuda LP",v:"$111B",c:"Apple",i:"🏦",d:"Bonos a años"},{n:"CxP",v:"$64B",c:"Apple",i:"📄",d:"Debe a proveedores"},{n:"Impuestos",v:"$8B",c:"Apple",i:"🏛️",d:"Pendientes"},{n:"Deferred Rev",v:"$8B",c:"Apple",i:"⏳",d:"Cobró sin entregar"}],k:"Current: AP, deuda CP. Non-Current: bonos, leasing LP."}}],
+q:[{q:"Bonos $10B vencen 5 años:",o:["Current L","Non-Current L","Asset","Equity"],c:1,e:">1 año = NC."},{q:"Salarios sin pagar del mes:",o:["Revenue","Current L","Non-Current L","Equity"],c:1,e:"<1 año = Current."},{q:"Cobró $500M iCloud anual adelantado:",o:["Revenue","Current L","Asset","Equity"],c:1,e:"Deferred Rev = liability."}]},
+
+{id:3,d:"basics",t:"Equity & La Ecuación",s:"A = L + E",icon:"⚖️",col:"#3b82f6",
+ls:[{id:"l3",t:"Equation",c:{st:"'Si tiene $100 en assets y debe $60... ¿cuánto queda?'",cn:"Equity = A - L. LA ECUACIÓN: A = L + E. SIEMPRE.",ex:[{n:"Capital Social",v:"$73B",c:"Apple",i:"📜",d:"Inversión accionistas"},{n:"Retained Earnings",v:"-$214B",c:"Apple",i:"💰",d:"Recompra acciones"},{n:"Total Equity",v:"$62B",c:"Apple",i:"⚖️",d:"$352B-$290B"}],k:"A = L + E siempre. Apple: $352B A, $290B L → E $62B."}}],
+q:[{q:"A $200M, L $150M. ¿E?",o:["$350M","$50M","$200M","$150M"],c:1,e:"$200-$150=$50M"},{q:"Retained Earnings son parte de:",o:["Assets","Liabilities","Equity","Revenue"],c:2,e:"Equity."},{q:"La ecuación fundamental:",o:["A=L-E","A=L+E","A+L=E","E=A+L"],c:1,e:"A=L+E."},{q:"¿Apple RE negativo por?",o:["Pierde plata","Recompra masiva","Error","No paga div"],c:1,e:"Recompra>retiene."}]},
+
+{id:4,d:"statements",t:"Income Statement",s:"¿Cuánto ganó?",icon:"📊",col:"#8b5cf6",
+ls:[{id:"l4",t:"P&L",c:{st:"'Analizá Tesla. Empezá por el Income Statement.'",cn:"Revenue→COGS→GP→OpEx→EBIT→Interest→Tax→NI.",ex:[{n:"Revenue",v:"$394B",c:"Apple'22",i:"💵",d:"Vendido"},{n:"COGS",v:"$223B",c:"Apple",i:"🏭",d:"Costo fabricar"},{n:"Gross Profit",v:"$171B",c:"Apple",i:"📊",d:"Rev-COGS"},{n:"Net Income",v:"$100B",c:"Apple",i:"🎯",d:"Final"}],k:"Es PELÍCULA (período). Rev→-COGS=GP→-OpEx=EBIT→-Tax=NI."}}],
+q:[{q:"Rev - COGS =",o:["NI","EBITDA","Gross Profit","EBIT"],c:2,e:"GP."},{q:"¿Después de GP?",o:["Tax","OpEx","Interest","Dividendos"],c:1,e:"GP-OpEx=EBIT."},{q:"¿IS es foto o película?",o:["Foto","Película","Ambas","Ninguna"],c:1,e:"Período=película."},{q:"GM Apple ≈ $171B/$394B ≈",o:["25%","43%","56%","71%"],c:1,e:"43%."}]},
+
+{id:5,d:"statements",t:"Balance Sheet",s:"Foto financiera",icon:"📸",col:"#8b5cf6",
+ls:[{id:"l5",t:"BS",c:{st:"'¿Cuánto TIENE y cuánto DEBE?'",cn:"FOTO en un momento. A=L+E. Working Capital = CA-CL.",ex:[{n:"Total Assets",v:"$352B",c:"Apple",i:"📦",d:"Posee"},{n:"Total Liab",v:"$290B",c:"Apple",i:"📄",d:"Debe"},{n:"Equity",v:"$62B",c:"Apple",i:"⚖️",d:"Accionistas"}],k:"WC = CA - CL. Mide liquidez CP."}}],
+q:[{q:"Working Capital =",o:["TA-TL","CA-CL","Eq-Debt","Rev-Exp"],c:1,e:"CA-CL."},{q:"¿Fecha específica?",o:["IS","CFS","BS","Todos"],c:2,e:"BS=foto."},{q:"Book Value/share =",o:["A/shares","Eq/shares","Rev/shares","NI/shares"],c:1,e:"Equity/diluted."}]},
+
+{id:6,d:"statements",t:"Cash Flow Statement",s:"Movimientos reales",icon:"💸",col:"#8b5cf6",
+ls:[{id:"l6",t:"CFS",c:{st:"'Puede ganar y quedarse sin cash.'",cn:"CFO, CFI, CFF. NI ≠ Cash Flow.",ex:[{n:"CFO",v:"$122B",c:"Apple",i:"🔄",d:"Operaciones"},{n:"CFI",v:"-$22B",c:"Apple",i:"🏗️",d:"CapEx"},{n:"CFF",v:"-$110B",c:"Apple",i:"🏦",d:"Recompra, div"}],k:"FCF = CFO - CapEx."}}],
+q:[{q:"¿NI ≠ CF por?",o:["Error","D&A y WC","Iguales","Tax"],c:1,e:"D&A no-cash, ΔWC."},{q:"CapEx en:",o:["CFO","CFI","CFF","No"],c:1,e:"Investing."},{q:"Recompra $90B en:",o:["CFO","CFI","CFF","IS"],c:2,e:"Financing."},{q:"FCF =",o:["CFO+CFI+CFF","CFO-CapEx","NI-Tax","Rev-COGS"],c:1,e:"CFO-CapEx."}]},
+
+{id:7,d:"statements",t:"Connecting the 3",s:"La pregunta de $10",icon:"🔗",col:"#8b5cf6",
+ls:[{id:"l7",t:"$10",c:{st:"'Si D&A sube $10, ¿qué pasa en los 3?'",cn:"IS: NI-$6. CFS: CFO+$4. BS: PP&E-$10, Cash+$4, RE-$6.",ex:[{n:"IS",v:"-$6 NI",c:"Paso 1",i:"📊",d:"Pre-tax-$10, tax+$4"},{n:"CFS",v:"+$4 CFO",c:"Paso 2",i:"💸",d:"NI-$6+D&A+$10"},{n:"BS",v:"Cuadra",c:"Paso 3",i:"📸",d:"PP&E-$10,Cash+$4,RE-$6"}],k:"A=L+E ✓ siempre."}}],
+q:[{q:"D&A+$10, tax 40%. ¿NI?",o:["-$10","-$6","-$4","0"],c:1,e:"-$6."},{q:"¿CFO?",o:["-$6","+$4","-$10","0"],c:1,e:"+$4."},{q:"¿PP&E?",o:["=","$+10","-$10","-$6"],c:2,e:"-$10."},{q:"¿A=L+E cuadra?",o:["No","Sí","Con tax","Depende"],c:1,e:"Siempre."}]},
+
+{id:8,d:"accounting",t:"D&A Deep Dive",s:"Gasto no-cash",icon:"📉",col:"#6366f1",
+ls:[{id:"l8",t:"D&A",c:{st:"'Entendé D&A a fondo. Clave para EBITDA y FCF.'",cn:"Depreciation=tangibles. Amortization=intangibles. Straight-Line vs Accelerated.",ex:[{n:"Straight-Line",v:"$10M/yr",c:"$50M 5yr",i:"📏",d:"Igual/año"},{n:"Double-Declining",v:"$20M yr1",c:"Misma",i:"📈",d:"Más al inicio"},{n:"Amort",v:"$5B/yr",c:"MSFT",i:"💡",d:"Patentes M&A"}],k:"Tax shield sin gastar cash. EBITDA las elimina."}}],
+q:[{q:"Deprec aplica a:",o:["Tangibles","Intangibles","Ambos","Ninguno"],c:0,e:"Tang. Amort=intang."},{q:"¿Tax shield D&A?",o:["Reduce tax sin cash","↑Rev","↓Eq","↓Liab"],c:0,e:"Menos tax, más cash."},{q:"$100M, 10yr, SL. ¿Anual?",o:["$5M","$10M","$20M","$100M"],c:1,e:"$10M."}]},
+
+{id:9,d:"accounting",t:"Goodwill",s:"Lo intangible",icon:"✨",col:"#6366f1",
+ls:[{id:"l9",t:"GW",c:{st:"'MSFT compró LinkedIn $26B, net assets $4B. ¿Los $22B?'",cn:"GW = precio - FV net assets. Solo M&A. Impairment test.",ex:[{n:"GW MSFT",v:"$67B",c:"Microsoft",i:"✨",d:"Exceso"},{n:"LinkedIn",v:"$22B",c:"$26B-$4B",i:"🤝",d:"GW"},{n:"Impairment",v:"Write-down",c:"Si cae",i:"📉",d:"Golpea NI"}],k:"GAAP: no amortiza, test anual."}}],
+q:[{q:"A compra B $500M, NA $300M. ¿GW?",o:["$500M","$300M","$200M","$800M"],c:2,e:"$200M."},{q:"¿Se amortiza GW (GAAP)?",o:["Sí","No, impairment","Sí 10yr","Depende"],c:1,e:"Solo impairment."},{q:"Impairment $1B afecta:",o:["Solo BS","Solo IS","IS y BS","Solo CFS"],c:2,e:"BS y IS. No cash."}]},
+
+{id:10,d:"accounting",t:"Deferred Taxes",s:"Diferencias temporarias",icon:"🕐",col:"#6366f1",
+ls:[{id:"l10",t:"DT",c:{st:"'Deferred taxes separa al buen analista.'",cn:"DTA: pagaste MÁS. DTL: pagaste MENOS. NOL=DTA.",ex:[{n:"DTA",v:"$6B",c:"Apple",i:"💰",d:"Tax de más"},{n:"DTL",v:"$3B",c:"Apple",i:"📋",d:"Tax diferido"},{n:"NOL",v:"Variable",c:"Startups",i:"🔄",d:"Pérdidas→menos tax"}],k:"GAAP>IRS→DTA. GAAP<IRS→DTL."}}],
+q:[{q:"Deprec acelerada tax, SL GAAP:",o:["DTA","DTL","Nada","GW"],c:1,e:"Menos tax hoy=DTL."},{q:"NOL es:",o:["Liability","DTA","Equity","Expense"],c:1,e:"Reduce tax futuro."},{q:"DTL en BS:",o:["CA","NCA","NCL","Equity"],c:2,e:"NC Liability."}]},
+
+{id:11,d:"accounting",t:"Revenue Recognition",s:"¿Cuándo es revenue?",icon:"📝",col:"#6366f1",
+ls:[{id:"l11",t:"Rev",c:{st:"'Netflix cobra $15/mes adelantado. ¿Rev día 1?'",cn:"ASC 606: al ENTREGAR. Cobrar≠Revenue.",ex:[{n:"SaaS",v:"$15/m",c:"Netflix",i:"📺",d:"$0.50/día"},{n:"Licencia",v:"$1,200",c:"MSFT",i:"💻",d:"$100/mes"},{n:"iPhone",v:"$1,000",c:"Apple",i:"📱",d:"Al entregar"}],k:"Deferred Rev=cobrado no entregado (L). Accrued Rev=entregado no cobrado (A)."}}],
+q:[{q:"$12K licencia 1/1. ¿Rev enero?",o:["$12K","$1K","$0","$6K"],c:1,e:"$1K/mes."},{q:"$11K restantes 31/1:",o:["Accrued Rev","Deferred Rev","AR","Equity"],c:1,e:"Deferred=liability."},{q:"Entregó $5K sin cobrar:",o:["Deferred","AR/Accrued","Def Expense","Unearned"],c:1,e:"AR=asset."}]},
+
+{id:12,d:"valuation",t:"EV vs Equity Value",s:"Diferencia crucial",icon:"🏢",col:"#f59e0b",
+ls:[{id:"l12",t:"EV",c:{st:"'¿Pagamos EV o Equity Value?'",cn:"EqV=accionistas. EV=todos. EV=MC+Debt-Cash.",ex:[{n:"EqV",v:"$2.8T",c:"Apple",i:"📈",d:"Precio×shares"},{n:"EV",v:"$2.9T",c:"Apple",i:"🏢",d:"MC+Debt-Cash"},{n:"Analogía",v:"Casa $500K",c:"Ej",i:"🏠",d:"Hipoteca$300K→Eq$200K"}],k:"EV=Eq+NetDebt+Pref+MI-Cash."}}],
+q:[{q:"MC$500M, debt$200M, cash$50M. ¿EV?",o:["$500M","$650M","$750M","$550M"],c:1,e:"$650M."},{q:"Sin deuda ni cash, EV=",o:["0","EqV","Imposible","Revenue"],c:1,e:"EV=EqV."},{q:"¿Restar cash?",o:["Error","Comprador recupera","No vale","↓riesgo"],c:1,e:"Recupera el cash."},{q:"Preferred se:",o:["Resta","Suma","Ignora","Depende"],c:1,e:"Suma como deuda."}]},
+
+{id:13,d:"valuation",t:"Trading Multiples",s:"Comps",icon:"🔍",col:"#f59e0b",
+ls:[{id:"l13",t:"Comps",c:{st:"'Haceme comps sector tech.'",cn:"EV múltiplos con pre-deuda. Equity con post-deuda.",ex:[{n:"EV/EBITDA",v:"22x",c:"Apple",i:"📊",d:"Más usado"},{n:"P/E",v:"29x",c:"Apple",i:"💹",d:"Price/EPS"},{n:"EV/Rev",v:"7.5x",c:"Apple",i:"📈",d:"Sin earnings"}],k:"Comps = mercado hoy. Peers → múltiplos → mediana → target."}}],
+q:[{q:"EV/EBITDA usa EV porque EBITDA es:",o:["Post-deuda","Pre-deuda","Post-tax","Solo tech"],c:1,e:"Pre-interest→todos→EV."},{q:"P/E usa Equity porque NI es:",o:["Pre-deuda","Post-deuda","Pre-tax","Sin D&A"],c:1,e:"Post-interest→accionistas."},{q:"Mediana 15x, EBITDA $100M. ¿EV?",o:["$100M","$1,500M","$15M","$150M"],c:1,e:"$1,500M."},{q:"¿EV/Rev cuándo?",o:["Siempre","No rentable","Solo banks","Nunca"],c:1,e:"EBITDA negativo."}]},
+
+{id:14,d:"valuation",t:"Precedent Transactions",s:"¿Cuánto pagaron?",icon:"🤝",col:"#f59e0b",
+ls:[{id:"l14",t:"Prec",c:{st:"'Precedents = qué PAGARON compradores reales.'",cn:"M&A deals pasados. MÁS ALTO por control premium 20-40%.",ex:[{n:"Premium",v:"20-40%",c:"Típico",i:"💰",d:"Sobre mercado"},{n:"MSFT-LinkedIn",v:"50%",c:"2016",i:"🤝",d:"$26B vs $17B MC"},{n:"Synergies",v:"Variable",c:"Deal",i:"⚡",d:"Justifican más"}],k:"Precedents>Comps. Diferencia = control premium + sinergias."}}],
+q:[{q:"Precedents dan valores:",o:["Más bajos","Iguales","Más altos","Imposible"],c:2,e:"Control premium."},{q:"¿Prima de control por?",o:["Ley","Sinergias+control","Subvalúa","Error"],c:1,e:"Control+sinergias."},{q:"Deal 2010 vs 2023:",o:["2010","2023","Iguales","Ninguno"],c:1,e:"Más reciente."}]},
+
+{id:15,d:"valuation",t:"Football Field",s:"Triangulando",icon:"🏈",col:"#f59e0b",
+ls:[{id:"l15",t:"FF",c:{st:"'Armá el football field. Rangos lado a lado.'",cn:"DCF, Comps, Precedents, 52W. Convergencia = confianza.",ex:[{n:"DCF",v:"$45-62",c:"Target",i:"🧮",d:"Assumptions"},{n:"Comps",v:"$50-58",c:"Target",i:"🔍",d:"Peers"},{n:"Prec",v:"$55-70",c:"Target",i:"🤝",d:"+premium"}],k:"Donde convergen = zona de confianza."}}],
+q:[{q:"¿Rango más amplio?",o:["Comps","Prec","DCF","52W"],c:2,e:"DCF sensible."},{q:"Convergen $50-55:",o:["Error","Alta confianza","Falta","Nada"],c:1,e:"Confianza."},{q:"52W sirve como:",o:["Principal","Referencia","Reemplaza DCF","No"],c:1,e:"Referencia."}]},
+
+{id:16,d:"dcf",t:"Time Value of Money",s:"$1 hoy > $1 mañana",icon:"⏰",col:"#10b981",
+ls:[{id:"l16",t:"TVM",c:{st:"'¿$100 hoy o $100 en 5 años?'",cn:"PV=FV/(1+r)^n. Mayor tasa/tiempo=menor PV.",ex:[{n:"PV 5yr 4%",v:"$82.6",c:"$100",i:"⏰",d:"$100/1.04^5"},{n:"PV 5yr 10%",v:"$62.1",c:"$100",i:"📉",d:"$100/1.10^5"},{n:"PV 10yr",v:"$386K",c:"$1M",i:"💰",d:"$1M/1.10^10"}],k:"Mayor tasa=menor PV. Descontar=traer a hoy."}}],
+q:[{q:"$1K 3yr 10%. ¿PV?",o:["$751","$900","$1,100","$700"],c:0,e:"$751."},{q:"Tasa↑→PV:",o:["↑","↓","=","Depende"],c:1,e:"↓."},{q:"¿Mayor PV? ($100 al 5%)",o:["1yr","3yr","5yr","10yr"],c:0,e:"Menor tiempo."}]},
+
+{id:17,d:"dcf",t:"WACC",s:"Costo de capital",icon:"⚖️",col:"#10b981",
+ls:[{id:"l17",t:"WACC",c:{st:"'WACC = tasa del DCF. Si lo calculás mal, todo cae.'",cn:"WACC=(E/V×Re)+(D/V×Rd×(1-T)). Re=CAPM.",ex:[{n:"Re",v:"~10%",c:"CAPM",i:"📈",d:"Exigen accionistas"},{n:"Rd post-tax",v:"~4%",c:"Deuda",i:"🏦",d:"Tasa×(1-T)"},{n:"WACC",v:"8-12%",c:"Típico",i:"⚖️",d:"Ponderado"}],k:"Deuda barata por tax shield. Beta>1=más volátil."}}],
+q:[{q:"¿Rd×(1-T) por?",o:["Error","Interest deducible","Sin costo","Igualar"],c:1,e:"Tax shield."},{q:"Beta>1:",o:["Menos volátil","Igual","Más volátil","Sin riesgo"],c:2,e:"Más riesgo→más Re."},{q:"E/V=60%,D/V=40%,Re=10%,Rd=5%,T=25%.WACC:",o:["7.5%","7.1%","8.0%","6.5%"],c:0,e:"7.5%."}]},
+
+{id:18,d:"dcf",t:"Free Cash Flow",s:"Cash que importa",icon:"💰",col:"#10b981",
+ls:[{id:"l18",t:"FCF",c:{st:"'Usamos Unlevered FCF. ¿Por qué?'",cn:"UFCF=EBIT×(1-T)+D&A-CapEx-ΔWC. Pre-deuda→WACC→EV.",ex:[{n:"NOPAT",v:"EBIT(1-T)",c:"Paso 1",i:"1️⃣",d:"Profit after tax"},{n:"+D&A",v:"Add-back",c:"Paso 2",i:"2️⃣",d:"Non-cash"},{n:"-CapEx-ΔWC",v:"Reinversión",c:"Paso 3",i:"3️⃣",d:"Reinvierte"}],k:"UFCF pre-deuda→WACC→EV."}}],
+q:[{q:"¿Sumar D&A por?",o:["Ingreso","Non-cash add-back","↑Tax","CapEx"],c:1,e:"No fue cash."},{q:"UFCF para:",o:["Accionistas","Acreedores","TODOS","Gobierno"],c:2,e:"Pre-deuda=todos."},{q:"WC↑→FCF:",o:["+","-","=","Depende"],c:1,e:"Más atado→menos FCF."},{q:"EBIT$100M,T=25%,D&A$20M,CapEx$30M,ΔWC$5M:",o:["$60M","$85M","$100M","$75M"],c:0,e:"$60M."}]},
+
+{id:19,d:"dcf",t:"Terminal Value",s:"60-80% del valor",icon:"♾️",col:"#10b981",
+ls:[{id:"l19",t:"TV",c:{st:"'TV = componente más grande. Y más peligroso.'",cn:"Gordon: FCF×(1+g)/(WACC-g). Exit Multiple. Cruzar ambos.",ex:[{n:"Gordon",v:"Perpetuity",c:"Método 1",i:"♾️",d:"g perpetuo"},{n:"Exit Mult",v:"EV/EBITDA",c:"Método 2",i:"📊",d:"Múltiplo salida"},{n:"% EV",v:"60-80%",c:"Típico",i:"⚠️",d:"Sensible"}],k:"g=2-3%. g<WACC siempre. Sensitivity obligatoria."}}],
+q:[{q:"FCF$100M,WACC10%,g2%.¿TV?",o:["$1,000M","$1,275M","$1,250M","$800M"],c:1,e:"$1,275M."},{q:"¿g<WACC por?",o:["Da negativo/infinito","Convención","g=0","WACC>siempre"],c:0,e:"Sin sentido."},{q:"TV 80%→",o:["Nada","Sensitivity","Eliminar","↑WACC"],c:1,e:"Sensitivity."}]},
+
+{id:20,d:"dcf",t:"DCF Completo",s:"Principio a fin",icon:"🧮",col:"#10b981",
+ls:[{id:"l20",t:"DCF",c:{st:"'Armá DCF 5yr solo.'",cn:"1)FCF 2)WACC 3)TV 4)Discount 5)Bridge Eq/share.",ex:[{n:"Discount",v:"FCF/(1+W)^n",c:"Paso 4",i:"4️⃣",d:"PV cada año"},{n:"Bridge",v:"EV-Debt+Cash",c:"Paso 5",i:"5️⃣",d:"÷diluted"},{n:"Sensitivity",v:"WACC vs g",c:"Obligatorio",i:"📊",d:"Tabla"}],k:"EV=Σ(PV FCF)+PV TV. Eq=EV-NetDebt. Price=Eq/Diluted."}}],
+q:[{q:"PV FCFs+PV TV=",o:["EqV","EV","NI","Rev"],c:1,e:"EV."},{q:"EV→Eq/share ÷",o:["Basic","Diluted","Rev","EBITDA"],c:1,e:"Diluted."},{q:"Sensitivity: ¿2 vars?",o:["Rev,COGS","WACC,g","Beta,Tax","D&A,CapEx"],c:1,e:"WACC y g."}]},
+
+{id:21,d:"ma",t:"M&A Fundamentals",s:"¿Por qué comprar?",icon:"🤝",col:"#ec4899",
+ls:[{id:"l21",t:"M&A",c:{st:"'Cliente quiere comprar competidor.'",cn:"Horizontal, vertical, conglomerate. Buy vs Sell-side.",ex:[{n:"Horizontal",v:"Disney-Fox",c:"2019",i:"🎬",d:"Mismo sector"},{n:"Vertical",v:"Amazon-WF",c:"2017",i:"🛒",d:"Supply chain"},{n:"Synergies",v:"Cost+Rev",c:"Siempre",i:"⚡",d:"Ahorros+crec"}],k:"Sell-side más común IB. NDA→InfoMemo→DD→Offer→Close."}}],
+q:[{q:"Disney-Fox:",o:["Vertical","Horizontal","Conglom","Reverse"],c:1,e:"Mismo sector."},{q:"Revenue synergies:",o:["Ahorros","Más ventas cross-sell","↓personal","Tax"],c:1,e:"Más ventas."},{q:"¿Más común IB?",o:["Buy","Sell","Iguales","Ninguno"],c:1,e:"Sell-side."}]},
+
+{id:22,d:"ma",t:"Accretion/Dilution",s:"¿Suma valor?",icon:"📊",col:"#ec4899",
+ls:[{id:"l22",t:"A/D",c:{st:"'¿Accretive o dilutive?'",cn:"Accretive=EPS↑. Dilutive=EPS↓.",ex:[{n:"Accretive",v:"EPS↑",c:"Deal",i:"📈",d:"Yield>cost"},{n:"Dilutive",v:"EPS↓",c:"Deal",i:"📉",d:"Pagás mucho"},{n:"Break-even",v:"EPS=",c:"Neutral",i:"➡️",d:"Sinergias compensan"}],k:"Stock: accretive si acquirer P/E > target P/E."}}],
+q:[{q:"Acq P/E 20x, Tgt P/E 15x, stock:",o:["Accretive","Dilutive","Neutral","Imposible"],c:0,e:"Acq>Tgt=accretive."},{q:"Dilutive ahora pero bueno por:",o:["Nada","Sinergias futuras","↑precio","Más stock"],c:1,e:"Sinergias 1-3yr."},{q:"Cash debt 3.75%, tgt earns 8%:",o:["Accretive","Dilutive","Neutral","Falta"],c:0,e:"8%>3.75%."}]},
+
+{id:23,d:"ma",t:"Merger Model",s:"Modelando",icon:"📐",col:"#ec4899",
+ls:[{id:"l23",t:"MM",c:{st:"'Armá merger model.'",cn:"1)Assumptions 2)S&U 3)PF BS(GW) 4)PF IS 5)A/D.",ex:[{n:"S&U",v:"Balance",c:"Siempre",i:"⚖️",d:"Fuentes=Usos"},{n:"PPA",v:"GW",c:"Allocation",i:"✨",d:"Exceso=GW"},{n:"PF IS",v:"Combined",c:"A+B",i:"📊",d:"+syn-fin costs"}],k:"S=U. GW=Price-FVNA. Fees se expense-an."}}],
+q:[{q:"S&U siempre:",o:["S>U","S<U","S=U","Depende"],c:2,e:"Cuadran."},{q:"Fees se:",o:["Capitalizan","Expense-an","Ignoran","→GW"],c:1,e:"ASC 805."},{q:"PF BS post-deal:",o:["Solo acq","Solo tgt","Combined+adj","Rev comb"],c:2,e:"Combined."}]},
+
+{id:24,d:"ma",t:"Deal Structures",s:"Cash, stock, mix",icon:"💳",col:"#ec4899",
+ls:[{id:"l24",t:"DS",c:{st:"'¿Cash o stock?'",cn:"Cash: certeza. Stock: comparte riesgo. Earnout: contingente.",ex:[{n:"All-Cash",v:"Certeza",c:"Seller",i:"💵",d:"Fijo"},{n:"All-Stock",v:"Participa",c:"Merger",i:"📄",d:"Mantiene upside"},{n:"Earnout",v:"Conting",c:"Startups",i:"🎯",d:"Si cumple metas"}],k:"Cash: no dilución, necesita funding. Stock: dilutive, conserva cash."}}],
+q:[{q:"¿Seller prefiere cash por?",o:["Riesgo","Certeza","Siempre vale más","Sin razón"],c:1,e:"Certeza."},{q:"Earnout para:",o:["Grandes","Startups inciertas","Hostiles","Tax"],c:1,e:"Precio condicionado."},{q:"Exchange ratio se:",o:["Fija gobierno","Negocia","Siempre 1:1","Mercado"],c:1,e:"Negocia."}]},
+
+{id:25,d:"lbo",t:"LBO Fundamentals",s:"Leveraged Buyout",icon:"🏗️",col:"#ef4444",
+ls:[{id:"l25",t:"LBO",c:{st:"'PE compra con 60% deuda.'",cn:"Comprar con deuda 60-80%. PE equity 20-40%. Empresa paga deuda. Exit 3-7yr.",ex:[{n:"Debt",v:"60-80%",c:"Típico",i:"🏦",d:"Préstamos+bonds"},{n:"Equity",v:"20-40%",c:"PE Fund",i:"💼",d:"Fondo pone"},{n:"IRR target",v:"20-25%+",c:"PE",i:"🎯",d:"Return mínimo"}],k:"PE compra→empresa paga deuda→vende→equity vale más→alto return."}}],
+q:[{q:"¿Quién paga deuda LBO?",o:["PE","Empresa con FCF","Previos","Banco"],c:1,e:"La empresa."},{q:"¿Tanta deuda por?",o:["↓Riesgo","Amplifica returns","Barato","Bancos obligan"],c:1,e:"Apalancamiento."},{q:"Target ideal LBO:",o:["FCF volátiles","FCF estables","Mucha deuda","Margen bajo"],c:1,e:"Estable."}]},
+
+{id:26,d:"lbo",t:"LBO Returns",s:"IRR y MOIC",icon:"📈",col:"#ef4444",
+ls:[{id:"l26",t:"Ret",c:{st:"'3 drivers: debt paydown, EBITDA growth, multiple expansion.'",cn:"MOIC=Exit/Entry Equity. IRR=annualized.",ex:[{n:"Debt Paydown",v:"Delever",c:"D1",i:"📉",d:"-deuda=+equity"},{n:"EBITDA Growth",v:"Operational",c:"D2",i:"📈",d:"Crecer"},{n:"Mult Expansion",v:"Sell higher",c:"D3",i:"💹",d:"8x→10x"}],k:"$100→$300 5yr = 3.0x MOIC, 24.6% IRR."}}],
+q:[{q:"$100M→$250M 5yr. MOIC:",o:["1.5x","2.0x","2.5x","3.0x"],c:2,e:"2.5x."},{q:"¿Driver no controla PE?",o:["Debt","EBITDA","Multiple expansion","Todos"],c:2,e:"Mercado."},{q:"Entry 8x, EBITDA+50%, exit 10x, $100M. Exit EV:",o:["$800M","$1B","$1.5B","$1.2B"],c:2,e:"$1.5B."}]},
+
+{id:27,d:"lbo",t:"LBO Model",s:"Armando",icon:"📐",col:"#ef4444",
+ls:[{id:"l27",t:"LBOM",c:{st:"'5 partes. Si una falla, todo cae.'",cn:"1)Assumptions 2)S&U 3)Projections 4)Debt schedule 5)Returns.",ex:[{n:"S&U",v:"D+E=Price",c:"P1",i:"⚖️",d:"Cuadrar"},{n:"Debt Sched",v:"Paydown",c:"P3",i:"📉",d:"Mandatory+opt"},{n:"Exit",v:"EV→Equity",c:"P5",i:"💰",d:"Scenarios"}],k:"Waterfall: Senior→Sub→Mezz. Cash sweep=excess→prepay."}}],
+q:[{q:"Waterfall primero:",o:["Mezz","Sub","Senior","Equity"],c:2,e:"Senior."},{q:"Cash sweep:",o:["Robar","ExcessFCF→prepay","Dividendos","CapEx"],c:1,e:"Prepagar deuda."},{q:"5.0x D/EBITDA, $100M:",o:["$100M","$250M","$500M","$1B"],c:2,e:"$500M."}]},
+
+{id:28,d:"pitchbook",t:"Pitch Book Basics",s:"Vender el deal",icon:"📑",col:"#06b6d4",
+ls:[{id:"l28",t:"PB",c:{st:"'Pitch al board viernes. PERFECTO.'",cn:"Credentials, market overview, valuation, deal structure.",ex:[{n:"Credentials",v:"Track record",c:"S1",i:"🏆",d:"Deals pasados"},{n:"Market",v:"Industry",c:"S2",i:"🌍",d:"Tamaño, competencia"},{n:"Valuation",v:"Football field",c:"S3",i:"📊",d:"Comps,prec,DCF"}],k:"Sell-side: 'te vendemos bien.' Buy-side: 'buen target.'"}}],
+q:[{q:"Objetivo pitch book:",o:["Info","Ganar mandato","Regulaciones","Interno"],c:1,e:"Ganar mandato."},{q:"Credentials:",o:["CV","Deals banco sector","Financials","Fees"],c:1,e:"Tombstones."},{q:"Sell-side pitch:",o:["Comprar","Vender empresa","IPO","Interno"],c:1,e:"Mandato de venta."}]},
+
+{id:29,d:"pitchbook",t:"Modeling Best Practices",s:"Excel como banker",icon:"💻",col:"#06b6d4",
+ls:[{id:"l29",t:"Excel",c:{st:"'Cómo se VE importa como los números.'",cn:"Azul=input, negro=fórmula, verde=link. Checks. 1 fórmula/fila.",ex:[{n:"Colors",v:"A/N/V",c:"Standard",i:"🎨",d:"Input/Formula/Link"},{n:"Check",v:"A=L+E→0",c:"Validación",i:"✅",d:"Si≠0 error"},{n:"Scenarios",v:"B/B/B",c:"Output",i:"📊",d:"Base/Bull/Bear"}],k:"Nunca hardcode en fórmula. Flags visibles."}}],
+q:[{q:"Celda azul:",o:["Error","Input","Fórmula","Link"],c:1,e:"Input."},{q:"Circular ref:",o:["Formato","Fórmula→sí misma","Link roto","Check"],c:1,e:"A→B→A."},{q:"3 escenarios:",o:["Good/Bad/Ugly","Alpha/Beta/Gamma","Base/Bull/Bear","Low/Mid/High"],c:2,e:"Base/Bull/Bear."}]},
+
+{id:30,d:"pitchbook",t:"3-Statement Model",s:"Integrando todo",icon:"📊",col:"#06b6d4",
+ls:[{id:"l30",t:"3SM",c:{st:"'Base de todo. Si lo dominás, cualquier modelo.'",cn:"IS→BS→CFS→link. Revenue build→margins→WC→debt.",ex:[{n:"Rev Build",v:"Units×P",c:"Start",i:"1️⃣",d:"Top/bottom"},{n:"WC",v:"%Rev",c:"BS",i:"2️⃣",d:"DSO,DIO,DPO"},{n:"Debt",v:"M+Opt",c:"Financing",i:"3️⃣",d:"Int→IS"}],k:"Circular: interest→NI→cash→debt→interest."}}],
+q:[{q:"DSO mide:",o:["Días cobrar","Días pagar","Días inv","Días prod"],c:0,e:"Cobrar AR."},{q:"Rev+10% margen cte→GP:",o:["Solo rev","COGS y GP +10%","Nada","TA"],c:1,e:"Proporcional."},{q:"Circular en 3SM:",o:["Rev,COGS","Interest,debt","D&A,PP&E","Tax,NI"],c:1,e:"Interest loop."}]},
+
+{id:31,d:"interview",t:"Tell Me About Yourself",s:"1ra impresión",icon:"👤",col:"#f97316",
+ls:[{id:"l31",t:"TMAY",c:{st:"'Tell me about yourself.' 2 minutos.",cn:"Past→Present→Future. Historia, no CV.",ex:[{n:"Past",v:"30s",c:"Background",i:"📚",d:"Uni"},{n:"Present",v:"30s",c:"Ahora",i:"📍",d:"Qué y por qué"},{n:"Future",v:"60s",c:"Why IB",i:"🎯",d:"Por qué IB/banco"}],k:"Específico. 'Después de analizar M&A de X...' no 'me interesa finanzas'."}}],
+q:[{q:"Formato TMAY:",o:["Cronológico","P→P→F 2min","Solo trabajo","Solo why IB"],c:1,e:"2 min."},{q:"Peor 'Why IB':",o:["Deals","Dinero","Experiencia","Ritmo"],c:1,e:"Nunca dinero."},{q:"Duración TMAY:",o:["30s","1-2min","5min","10min"],c:1,e:"1-2min."}]},
+
+{id:32,d:"interview",t:"Technical Questions",s:"Preguntas clave",icon:"🧠",col:"#f97316",
+ls:[{id:"l32",t:"Tech",c:{st:"'Walk me through a DCF.'",cn:"3 statements, value company, DCF, $10, A/D.",ex:[{n:"DCF walk",v:"5 pasos",c:"Must",i:"🧮",d:"FCF→W→TV→D→Eq"},{n:"EV/EBITDA",v:"Cap neutral",c:"Must",i:"📊",d:"Pre-deuda"},{n:"$10 D&A",v:"3 stmt",c:"Must",i:"🔗",d:"IS→CFS→BS"}],k:"Estructura>memorización."}}],
+q:[{q:"DCF paso 1:",o:["WACC","Proyectar FCF","TV","EqV"],c:1,e:"FCF."},{q:"3 métodos valuación:",o:["DCF/PE/BV","Comps/Prec/DCF","LBO/DCF/Comps","Liq/BV/DCF"],c:1,e:"Comps/Prec/DCF."},{q:"¿Más alto?",o:["DCF","Comps","Precedents","52W"],c:2,e:"Control premium."},{q:"Si no sabés:",o:["Inventar","Callarse","Explicar approach","Cambiar tema"],c:2,e:"Approach."}]},
+
+{id:33,d:"interview",t:"Behavioral",s:"Fit matters",icon:"🎭",col:"#f97316",
+ls:[{id:"l33",t:"Behav",c:{st:"'Liderazgo bajo presión.' Define si te contratan.",cn:"STAR: Situation, Task, Action, Result.",ex:[{n:"Leadership",v:"STAR",c:"Prep",i:"👑",d:"Deadline"},{n:"Failure",v:"STAR",c:"Prep",i:"📉",d:"Error+aprend"},{n:"Why Bank",v:"Específico",c:"Research",i:"🏦",d:"Deals,cultura"}],k:"Números. 'Equipo de 4, 2 días antes, -15% costos' > 'Soy buen líder'."}}],
+q:[{q:"STAR:",o:["Strategy/Tactics/Analysis/Results","Situation/Task/Action/Result","Start/Think/Act/Review","Skills/Training/Ach/Recog"],c:1,e:"STAR."},{q:"Pregunta fracaso:",o:["Nunca","Real+aprendizaje","Culpar","Menor"],c:1,e:"Self-awareness."},{q:"Why JPM not GS:",o:["Ambos","Razones ESPECÍFICAS","1ra opción","Salarios"],c:1,e:"Research."}]},
+
+{id:34,d:"interview",t:"The Final Round",s:"Simulación",icon:"🎯",col:"#f97316",
+ls:[{id:"l34",t:"Final",c:{st:"Superday Morgan Stanley. 5 entrevistas.",cn:"4-6 interviews. Technical+Behavioral. Consistencia.",ex:[{n:"Morning",v:"Technical",c:"Assoc/VP",i:"🧠",d:"DCF,accounting"},{n:"Afternoon",v:"Behavioral",c:"Dir/MD",i:"🤝",d:"Why IB"},{n:"Key",v:"Consistencia",c:"All day",i:"🎯",d:"Misma energía"}],k:"50+ technicals. 7+ stories. Thank you emails."}}],
+q:[{q:"Superday interviews:",o:["1-2","3-4","4-6","10+"],c:2,e:"4-6."},{q:"Startup sin rev:",o:["P/E","DCF+comps funding","Prec","Liquidation"],c:1,e:"DCF+funding."},{q:"Lo MÁS importante:",o:["Perfectas","Consistencia","Vestimenta","Networking"],c:1,e:"Consistencia."},{q:"Después superday:",o:["Esperar","TY email 24hs","Llamar","LinkedIn"],c:1,e:"Thank you."}]}
+];
+
+// ===================== ISOMETRIC BUILDING COMPONENT =====================
+const IsoBld=({x,y,w,depth,height,color,roofColor,icon,label,progress,allDone,onClick,floors})=>{
+const darken=(c,a)=>c+a;
+const topW=w;const topD=depth;
+// Isometric transforms
+const isoX=(px,py)=>px-py;
+const isoY=(px,py)=>(px+py)/2;
+
+// Face colors
+const rightFace=darken(color,"30");
+const leftFace=darken(color,"50");
+const topFace=color;
+
+// Window pattern for front face
+const winRows=floors||4;
+const winCols=Math.max(2,Math.floor(w/20));
+
+return h("g",{onClick,className:"iso-bld",style:{"--glow":color,cursor:"pointer"},transform:`translate(${x},${y})`},
+// Shadow
+h("ellipse",{cx:0,cy:height*0.52+10,rx:w*0.7,ry:depth*0.3,fill:"#00000025",filter:"blur(4px)"}),
+
+// LEFT FACE (darker)
+h("path",{d:`M${-w/2},0 L${-w/2},${-height} L${0},${-height-depth/2} L${0},${-depth/2} Z`,
+fill:allDone?"#064e3b":"#0c1222",stroke:allDone?"#10b98140":color+"30",strokeWidth:1}),
+// Windows left
+Array.from({length:winRows}).map((_,r)=>
+Array.from({length:Math.max(1,winCols-1)}).map((_,c)=>{
+const wx=-w/2+8+c*((w/2-12)/(winCols-1||1));
+const wy=-height+20+r*((height-35)/winRows);
+const skewY=-depth/(2*height)*((wy+height));
+const lit=((r+c)%3!==0);
+return h("rect",{key:`l${r}${c}`,x:wx,y:wy+skewY*0.15,width:7,height:9,rx:1,
+fill:lit?(allDone?"#10b98180":"#fbbf2460"):"#06091550",opacity:lit?0.8:0.6})})),
+
+// RIGHT FACE (medium)
+h("path",{d:`M${w/2},0 L${w/2},${-height} L${0},${-height-depth/2} L${0},${-depth/2} Z`,
+fill:allDone?"#065f46":"#10142a",stroke:allDone?"#10b98140":color+"30",strokeWidth:1}),
+// Windows right
+Array.from({length:winRows}).map((_,r)=>
+Array.from({length:Math.max(1,winCols-1)}).map((_,c)=>{
+const wx=4+c*((w/2-12)/(winCols-1||1));
+const wy=-height+20+r*((height-35)/winRows);
+const lit=((r+c+1)%3!==0);
+return h("rect",{key:`r${r}${c}`,x:wx,y:wy,width:7,height:9,rx:1,
+fill:lit?(allDone?"#10b98170":"#fbbf2450"):"#06091550",opacity:lit?0.7:0.5})})),
+
+// TOP FACE (roof)
+h("path",{d:`M${0},${-height-depth/2} L${-w/2},${-height} L${0},${-height+depth/2} L${w/2},${-height} Z`,
+fill:allDone?"#10b98130":color+"25",stroke:allDone?"#10b98150":color+"40",strokeWidth:1}),
+
+// Roof accent line
+h("line",{x1:-w/2,y1:-height,x2:w/2,y2:-height,stroke:allDone?"#10b981":color,strokeWidth:2,opacity:0.6}),
+
+// Door
+h("rect",{x:-5,y:-12,width:10,height:12,rx:2,fill:allDone?"#10b98140":color+"30",stroke:allDone?"#10b98160":color+"40",strokeWidth:1}),
+
+// Icon floating above
+h("text",{x:0,y:-height-depth/2-14,textAnchor:"middle",fontSize:22,style:{filter:"drop-shadow(0 2px 6px #00000080)",animation:"float 3s ease infinite"}},icon),
+
+// Label below
+h("text",{x:0,y:20,textAnchor:"middle",fontSize:9,fill:allDone?"#10b981":color,fontWeight:700,fontFamily:"Outfit",letterSpacing:0.5},label),
+
+// Progress text
+h("text",{x:0,y:32,textAnchor:"middle",fontSize:8,fill:"#4a5070",fontFamily:"Outfit"},progress),
+
+// Completion badge
+allDone&&h("circle",{cx:w/2-5,cy:-height+10,r:8,fill:"#10b981"}),
+allDone&&h("text",{x:w/2-5,y:-height+14,textAnchor:"middle",fontSize:10,fill:"#fff"},"✓"),
+
+// Glow border for in-progress
+!allDone&&parseInt(progress)>0&&h("path",{d:`M${-w/2},0 L${-w/2},${-height} L${0},${-height-depth/2} L${w/2},${-height} L${w/2},0 L${0},${-depth/2} Z`,
+fill:"none",stroke:color,strokeWidth:1.5,opacity:0.3,strokeDasharray:"4 3"})
+)};
+
+// ===================== MAIN APP =====================
+function IBApp(){
+const saved=load();
+const[screen,setScreen]=useState("map");
+const[xp,setXp]=useState(saved?.xp||0);
+const[dn,setDn]=useState(saved?.done||[]);
+const[curLv,setCurLv]=useState(null);
+const[lI,setLI]=useState(0);
+const[qz,setQz]=useState(false);
+const[qI,setQI]=useState(0);
+const[ans,setAns]=useState(null);
+const[shE,setShE]=useState(false);
+const[cor,setCor]=useState(0);
+const[str,setStr]=useState(0);
+const[shk,setShk]=useState(false);
+const[ru,setRu]=useState(false);
+const[pR,setPR]=useState(null);
+const[sd,setSd]=useState(null);
+const[my,setMy]=useState(200);
+const tRef=useRef({y:0,sy:0});
+
+useEffect(()=>{save({xp,done:dn})},[xp,dn]);
+
+const gR=useCallback(p=>{let r=RANKS[0];for(const x of RANKS)if(p>=x.minXP)r=x;return r},[]);
+const rk=gR(xp);const nR=RANKS[RANKS.indexOf(rk)+1];
+const prg=nR?((xp-rk.minXP)/(nR.minXP-rk.minXP))*100:100;
+const aXP=useCallback(a=>{const o=gR(xp);const n=xp+a;const nr=gR(n);setXp(n);if(nr.title!==o.title){setPR(o);setTimeout(()=>setRu(true),300)}},[xp,gR]);
+
+const dL=useMemo(()=>{const m={};DISTRICTS.forEach(d=>{m[d.id]=LEVELS.filter(l=>l.d===d.id)});return m},[]);
+const dP=useMemo(()=>{const m={};DISTRICTS.forEach(d=>{const l=dL[d.id];const done=l.filter(x=>dn.includes(x.id)).length;m[d.id]={done,tot:l.length,pct:l.length?Math.round(done/l.length*100):0}});return m},[dn,dL]);
+
+const sLv=lv=>{setCurLv(lv);setLI(0);setQz(false);setQI(0);setAns(null);setShE(false);setCor(0);setStr(0);setScreen("level")};
+const sQ=()=>{setQz(true);setQI(0);setAns(null);setShE(false);setCor(0);setStr(0)};
+const oA=i=>{if(ans!==null)return;setAns(i);const ok=i===curLv.q[qI].c;if(ok){setCor(c=>c+1);setStr(s=>s+1);aXP(20+(str>=2?10:0))}else{setStr(0);setShk(true);setTimeout(()=>setShk(false),500)}setShE(true)};
+const nQ=()=>{if(qI<curLv.q.length-1){setQI(q=>q+1);setAns(null);setShE(false)}else{if(!dn.includes(curLv.id)){setDn(p=>[...p,curLv.id]);aXP(50)}setScreen("results")}};
+
+const MH=1400;
+const hTS=e=>{tRef.current={y:e.touches[0].clientY,sy:my}};
+const hTM=e=>{const dy=tRef.current.y-e.touches[0].clientY;setMy(Math.max(0,Math.min(MH-window.innerHeight+100,tRef.current.sy+dy)))};
+const hW=e=>{setMy(y=>Math.max(0,Math.min(MH-window.innerHeight+100,y+e.deltaY*0.8)))};
+
+// RANK UP
+if(ru)return h("div",{style:{background:"#0b0e18",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",padding:20,textAlign:"center"}},
+h("div",{style:{animation:"bounce 0.6s",fontSize:72,marginBottom:16}},"🏅"),
+h("h2",{style:{fontSize:26,fontWeight:800,color:"#f59e0b",fontFamily:"'Syne'"}},"¡PROMOCIÓN!"),
+pR&&h("p",{style:{color:"#4a5070",fontSize:13,margin:"8px 0 20px"}},pR.icon+" "+pR.title+" → "+rk.icon+" "+rk.title),
+h("div",{style:{fontSize:52,marginBottom:8}},rk.icon),
+h("div",{style:{fontSize:22,fontWeight:800,color:rk.color,marginBottom:28,fontFamily:"'Syne'"}},rk.title),
+h("button",{onClick:()=>setRu(false),style:{padding:"12px 36px",background:`linear-gradient(135deg,${rk.color},${rk.color}bb)`,border:"none",borderRadius:12,color:"#fff",fontWeight:800,fontSize:14}},"¡Sigamos! 🚀"));
+
+// MAP
+if(screen==="map"&&!sd){
+const vw=Math.min(520,typeof window!=='undefined'?window.innerWidth:400);
+const blds=[
+{d:DISTRICTS[0],x:vw*0.25,y:1120,w:70,dp:35,ht:90,fl:4},
+{d:DISTRICTS[1],x:vw*0.65,y:1020,w:80,dp:40,ht:110,fl:5},
+{d:DISTRICTS[2],x:vw*0.35,y:900,w:55,dp:28,ht:130,fl:6},
+{d:DISTRICTS[3],x:vw*0.7,y:790,w:90,dp:45,ht:85,fl:3},
+{d:DISTRICTS[4],x:vw*0.3,y:670,w:65,dp:32,ht:115,fl:5},
+{d:DISTRICTS[5],x:vw*0.65,y:560,w:75,dp:38,ht:100,fl:4},
+{d:DISTRICTS[6],x:vw*0.4,y:430,w:60,dp:30,ht:120,fl:5},
+{d:DISTRICTS[7],x:vw*0.7,y:310,w:50,dp:25,ht:140,fl:7},
+{d:DISTRICTS[8],x:vw*0.45,y:170,w:80,dp:40,ht:150,fl:8}
+];
+return h("div",{style:{background:"#0b0e18",height:"100vh",overflow:"hidden",fontFamily:"'Outfit'",maxWidth:520,margin:"0 auto",position:"relative"},onWheel:hW,onTouchStart:hTS,onTouchMove:hTM},
+// Fixed HUD
+h("div",{style:{position:"absolute",top:0,left:0,right:0,zIndex:10,background:"linear-gradient(to bottom,#0b0e18 70%,transparent)",padding:"10px 14px 20px"}},
+h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between"}},
+h("div",null,
+h("div",{style:{fontSize:16,fontWeight:800,fontFamily:"'Syne'",background:"linear-gradient(135deg,#60a5fa,#c084fc,#f472b6)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}},"IB ACADEMY"),
+h("div",{style:{fontSize:8,color:"#3a3f55",letterSpacing:2,textTransform:"uppercase",fontWeight:700}},"WALL STREET")),
+h("div",{style:{display:"flex",alignItems:"center",gap:6}},
+h("div",{style:{background:"#10142a",border:"1px solid #1a1f3a",borderRadius:8,padding:"5px 10px",display:"flex",alignItems:"center",gap:5}},
+h("span",{style:{fontSize:13}},rk.icon),
+h("span",{style:{fontSize:11,fontWeight:700,color:rk.color}},rk.title)),
+h("div",{style:{background:"#10142a",border:"1px solid #1a1f3a",borderRadius:8,padding:"5px 10px"}},
+h("span",{style:{fontSize:11,fontWeight:800,color:"#fbbf24"}},xp+" XP")))),
+h("div",{style:{height:3,background:"#151d35",borderRadius:3,marginTop:8,overflow:"hidden"}},
+h("div",{style:{height:"100%",width:Math.min(prg,100)+"%",background:`linear-gradient(90deg,${rk.color},${nR?.color||rk.color})`,borderRadius:3}}))),
+
+// SVG Map
+h("div",{style:{position:"absolute",top:0,left:0,right:0,height:MH,transform:`translateY(${-my}px)`,willChange:"transform"}},
+h("svg",{width:"100%",height:MH,viewBox:`0 0 ${vw} ${MH}`},
+// Sky gradient
+h("defs",null,
+h("linearGradient",{id:"sky",x1:0,y1:0,x2:0,y2:1},
+h("stop",{offset:"0%",stopColor:"#0f1729"}),
+h("stop",{offset:"50%",stopColor:"#0b0e18"}),
+h("stop",{offset:"100%",stopColor:"#0d1020"}))),
+h("rect",{width:vw,height:MH,fill:"url(#sky)"}),
+
+// Stars
+Array.from({length:60}).map((_,i)=>h("circle",{key:`st${i}`,cx:Math.random()*vw,cy:Math.random()*MH*0.7,r:Math.random()*1.2+0.3,fill:["#fff","#60a5fa","#c084fc","#fbbf24"][i%4],opacity:0.08+Math.random()*0.15,style:{animation:`twinkle ${3+Math.random()*5}s infinite ${Math.random()*4}s`}})),
+
+// Ground plane (isometric grid lines)
+Array.from({length:12}).map((_,i)=>{
+const y1=MH-50+i*8;
+return h("line",{key:`g${i}`,x1:0,y1,x2:vw,y2:y1,stroke:"#111630",strokeWidth:0.5,opacity:0.3})}),
+
+// Connecting road path (subtle)
+h("path",{d:blds.map((b,i)=>`${i===0?'M':'L'}${b.x},${b.y+10}`).join(' '),
+stroke:"#151d35",strokeWidth:14,fill:"none",strokeLinecap:"round",strokeLinejoin:"round",opacity:0.5}),
+h("path",{d:blds.map((b,i)=>`${i===0?'M':'L'}${b.x},${b.y+10}`).join(' '),
+stroke:"#1a2040",strokeWidth:1,fill:"none",strokeDasharray:"8 6",opacity:0.4}),
+
+// Small decorative trees
+[{x:50,y:1180},{x:vw-40,y:950},{x:30,y:750},{x:vw-50,y:620},{x:60,y:480},{x:vw-30,y:350},{x:vw*0.5,y:1070},{x:vw*0.15,y:530},{x:vw*0.85,y:450}].map((t,i)=>
+h("g",{key:`tree${i}`,transform:`translate(${t.x},${t.y})`},
+h("ellipse",{cx:0,cy:-8,rx:6,ry:8,fill:"#0a2618",opacity:0.7}),
+h("rect",{x:-1,y:-3,width:2,height:6,fill:"#1a3a28",opacity:0.5}))),
+
+// Lamp posts
+[{x:vw*0.15,y:1050},{x:vw*0.8,y:860},{x:vw*0.2,y:600},{x:vw*0.75,y:400},{x:vw*0.5,y:250}].map((l,i)=>
+h("g",{key:`lp${i}`,transform:`translate(${l.x},${l.y})`},
+h("rect",{x:-1,y:-20,width:2,height:20,fill:"#1a2040"}),
+h("circle",{cx:0,cy:-22,r:3,fill:"#fbbf24",opacity:0.5}),
+h("circle",{cx:0,cy:-22,r:8,fill:"#fbbf24",opacity:0.06}))),
+
+// Buildings
+blds.map(b=>{const pr=dP[b.d.id];return h(IsoBld,{key:b.d.id,x:b.x,y:b.y,w:b.w,depth:b.dp,height:b.ht,
+color:b.d.color,roofColor:b.d.color,icon:b.d.icon,label:b.d.name,
+progress:pr.done+"/"+pr.tot,allDone:pr.pct===100,floors:b.fl,
+onClick:()=>setSd(b.d.id)})}),
+
+// Bottom label
+h("text",{x:vw/2,y:MH-15,textAnchor:"middle",fontSize:9,fill:"#1a2040",fontFamily:"Outfit"},"↕ Scroll para explorar")
+)),
+
+// Bottom stats
+h("div",{style:{position:"absolute",bottom:0,left:0,right:0,zIndex:10,background:"linear-gradient(to top,#0b0e18 60%,transparent)",padding:"20px 14px 14px"}},
+h("div",{style:{display:"flex",gap:6}},
+[{l:"Niveles",v:dn.length+"/"+LEVELS.length,i:"📚"},{l:"Distritos",v:Object.values(dP).filter(p=>p.pct===100).length+"/"+DISTRICTS.length,i:"🏙️"},{l:"Rango",v:(RANKS.indexOf(rk)+1)+"/"+RANKS.length,i:"⭐"}].map((s,i)=>
+h("div",{key:i,style:{flex:1,background:"#10142a",border:"1px solid #1a1f3a",borderRadius:10,padding:"8px 4px",textAlign:"center"}},
+h("div",{style:{fontSize:14}},s.i),
+h("div",{style:{fontSize:13,fontWeight:800,color:"#e2e8f0"}},s.v),
+h("div",{style:{fontSize:8,color:"#3a3f55",fontWeight:700,textTransform:"uppercase",letterSpacing:1}},s.l)))))
+)}
+
+// DISTRICT LIST
+if(screen==="map"&&sd){
+const dist=DISTRICTS.find(d=>d.id===sd);const lvs=dL[sd];const pr=dP[sd];
+return h("div",{style:{background:"#0b0e18",minHeight:"100vh",fontFamily:"'Outfit'",maxWidth:520,margin:"0 auto",overflowY:"auto"}},
+h("div",{style:{position:"sticky",top:0,background:"linear-gradient(to bottom,#0b0e18 85%,transparent)",padding:"14px 14px 20px",zIndex:5}},
+h("div",{style:{display:"flex",alignItems:"center",gap:10}},
+h("button",{onClick:()=>setSd(null),style:{background:"none",border:"none",color:"#4a5070",fontSize:20,padding:4}},"←"),
+h("div",{style:{flex:1}},h("div",{style:{fontSize:8,color:"#4a5070",textTransform:"uppercase",letterSpacing:2,fontWeight:700}},dist.sub),
+h("div",{style:{fontSize:17,fontWeight:800,color:dist.color,fontFamily:"'Syne'"}},dist.icon+" "+dist.name)),
+h("div",{style:{background:dist.color+"15",border:`1px solid ${dist.color}25`,borderRadius:8,padding:"5px 10px",fontSize:11,fontWeight:700,color:dist.color}},pr.done+"/"+pr.tot)),
+h("div",{style:{height:4,background:"#151d35",borderRadius:4,marginTop:10,overflow:"hidden"}},
+h("div",{style:{height:"100%",width:pr.pct+"%",background:dist.color,borderRadius:4}}))),
+h("div",{style:{padding:"0 14px 80px"}},
+lvs.map((lv,i)=>{const d=dn.includes(lv.id);
+return h("button",{key:lv.id,onClick:()=>sLv(lv),style:{display:"flex",alignItems:"center",gap:12,width:"100%",background:d?"#10b98108":"#10142a",border:`1px solid ${d?"#10b98120":"#1a1f3a"}`,borderRadius:14,padding:"14px 16px",marginBottom:8,textAlign:"left",color:"#e2e8f0",animation:`fadeIn 0.3s ease ${i*0.05}s both`,position:"relative",overflow:"hidden"}},
+d&&h("div",{style:{position:"absolute",top:0,right:0,background:"#10b981",color:"#fff",fontSize:7,padding:"2px 8px",borderBottomLeftRadius:8,fontWeight:700,letterSpacing:0.5}},"DONE"),
+h("div",{style:{width:38,height:38,borderRadius:10,background:d?"#10b98112":dist.color+"10",border:`1px solid ${d?"#10b98125":dist.color+"20"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}},d?"✅":lv.icon),
+h("div",{style:{flex:1}},
+h("div",{style:{fontSize:13,fontWeight:700,color:d?"#10b981":"#e2e8f0"}},lv.t),
+h("div",{style:{fontSize:10,color:"#4a5070",marginTop:1}},lv.s)),
+h("span",{style:{color:"#2a2f45",fontSize:16}},"›"))})))}
+
+// LEVEL
+if(screen==="level"&&curLv){
+if(!qz){const l=curLv.ls[lI];const c=l.c;
+return h("div",{style:{background:"#0b0e18",minHeight:"100vh",fontFamily:"'Outfit'",maxWidth:520,margin:"0 auto",overflowY:"auto"}},
+h("div",{style:{position:"sticky",top:0,background:"linear-gradient(to bottom,#0b0e18 85%,transparent)",padding:"14px 14px 16px",zIndex:5}},
+h("div",{style:{display:"flex",alignItems:"center",gap:8,marginBottom:10}},
+h("button",{onClick:()=>{setScreen("map");setSd(curLv.d)},style:{background:"none",border:"none",color:"#4a5070",fontSize:18,padding:4}},"←"),
+h("div",{style:{flex:1}},h("div",{style:{fontSize:8,color:"#4a5070",fontWeight:700,letterSpacing:1.5}},"LV "+curLv.id),
+h("div",{style:{fontSize:13,fontWeight:700,color:curLv.col}},curLv.t)),
+h("div",{style:{fontSize:10,color:"#4a5070",background:"#10142a",padding:"3px 8px",borderRadius:16,border:"1px solid #1a1f3a",fontWeight:700}},(lI+1)+"/"+curLv.ls.length)),
+h("div",{style:{display:"flex",gap:3}},curLv.ls.map((_,i)=>h("div",{key:i,style:{flex:1,height:3,borderRadius:3,background:i<=lI?curLv.col:"#151d35"}})),h("div",{style:{flex:1,height:3,borderRadius:3,background:"#151d35"}}))),
+h("div",{style:{padding:"0 14px 80px"}},
+h("div",{style:{background:"#10142a",border:"1px solid #1a1f3a",borderRadius:12,padding:14,marginBottom:10,animation:"fadeIn 0.3s"}},
+h("div",{style:{fontSize:8,color:"#f59e0b",fontWeight:700,marginBottom:5,letterSpacing:1.5}},"📖 SITUACIÓN"),
+h("p",{style:{fontSize:13,lineHeight:1.6,color:"#6b7290",margin:0,fontStyle:"italic"}},c.st)),
+h("div",{style:{background:curLv.col+"0a",border:`1px solid ${curLv.col}15`,borderRadius:12,padding:14,marginBottom:10,animation:"fadeIn 0.3s 0.1s both"}},
+h("div",{style:{fontSize:8,color:curLv.col,fontWeight:700,marginBottom:5,letterSpacing:1.5}},"💡 CONCEPTO"),
+h("p",{style:{fontSize:13,lineHeight:1.65,color:"#d4d8e8",margin:0}},c.cn)),
+h("div",{style:{fontSize:8,fontWeight:700,color:"#4a5070",margin:"12px 0 6px",letterSpacing:1.5}},"🌍 EJEMPLOS"),
+c.ex.map((ex,i)=>h("div",{key:i,style:{display:"flex",alignItems:"center",gap:8,background:"#10142a",border:"1px solid #1a1f3a",borderRadius:10,padding:"8px 12px",marginBottom:4,animation:`fadeIn 0.25s ease ${i*0.04}s both`}},
+h("span",{style:{fontSize:16}},ex.i),
+h("div",{style:{flex:1}},h("div",{style:{display:"flex",justifyContent:"space-between"}},
+h("span",{style:{fontSize:11,fontWeight:700,color:"#e2e8f0"}},ex.n),
+h("span",{style:{fontSize:11,fontWeight:800,color:"#60a5fa"}},ex.v)),
+h("div",{style:{fontSize:9,color:"#4a5070",marginTop:1}},ex.c+" — "+ex.d)))),
+h("div",{style:{background:"#f59e0b08",border:"1px solid #f59e0b15",borderRadius:12,padding:14,margin:"12px 0 18px"}},
+h("div",{style:{fontSize:8,color:"#f59e0b",fontWeight:700,marginBottom:5,letterSpacing:1.5}},"⚡ KEY INSIGHT"),
+h("p",{style:{fontSize:12,lineHeight:1.65,color:"#fef3c7",margin:0,fontWeight:500}},c.k)),
+h("div",{style:{display:"flex",gap:8}},
+lI>0&&h("button",{onClick:()=>setLI(l=>l-1),style:{flex:1,padding:"12px",background:"#10142a",border:"1px solid #1a1f3a",borderRadius:10,color:"#6b7290",fontWeight:700,fontSize:12}},"←"),
+h("button",{onClick:()=>{if(lI<curLv.ls.length-1){setLI(l=>l+1);aXP(10)}else{sQ();aXP(10)}},style:{flex:2,padding:"12px",background:`linear-gradient(135deg,${curLv.col},${curLv.col}bb)`,border:"none",borderRadius:10,color:"#fff",fontWeight:800,fontSize:13}},lI<curLv.ls.length-1?"Siguiente →":"📝 Quiz →"))))}
+
+const q=curLv.q[qI];
+return h("div",{style:{background:"#0b0e18",minHeight:"100vh",fontFamily:"'Outfit'",maxWidth:520,margin:"0 auto",overflowY:"auto"}},
+h("div",{style:{position:"sticky",top:0,background:"linear-gradient(to bottom,#0b0e18 85%,transparent)",padding:"14px 14px 16px",zIndex:5}},
+h("div",{style:{display:"flex",alignItems:"center",gap:8,marginBottom:8}},
+h("button",{onClick:()=>{setScreen("map");setSd(curLv.d)},style:{background:"none",border:"none",color:"#4a5070",fontSize:18,padding:4}},"←"),
+h("div",{style:{flex:1}},h("div",{style:{fontSize:8,color:"#ef4444",fontWeight:700,letterSpacing:1.5}},"🧠 QUIZ"),
+h("div",{style:{fontSize:13,fontWeight:700,color:"#e2e8f0"}},curLv.t)),
+h("div",{style:{display:"flex",alignItems:"center",gap:5}},
+str>=2&&h("span",{style:{fontSize:10,color:"#f59e0b",fontWeight:800}},"🔥"+str),
+h("span",{style:{fontSize:10,color:"#4a5070",background:"#10142a",padding:"3px 8px",borderRadius:16,border:"1px solid #1a1f3a",fontWeight:700}},(qI+1)+"/"+curLv.q.length))),
+h("div",{style:{height:3,background:"#151d35",borderRadius:3}},h("div",{style:{height:"100%",width:((qI+1)/curLv.q.length*100)+"%",background:"linear-gradient(90deg,#3b82f6,#8b5cf6)",borderRadius:3}}))),
+h("div",{style:{padding:"0 14px 80px"}},
+h("div",{style:{background:"#10142a",border:"1px solid #1a1f3a",borderRadius:14,padding:16,marginBottom:14}},
+h("p",{style:{fontSize:14,fontWeight:700,color:"#e2e8f0",lineHeight:1.55,margin:0}},q.q)),
+h("div",{style:{display:"flex",flexDirection:"column",gap:6,marginBottom:14,animation:shk?"shake 0.5s":"none"}},
+q.o.map((o,i)=>{const iS=ans===i,iC=i===q.c,a=ans!==null;let bg="#0a0e1a",bd="#1a1f3a",tc="#d4d8e8";
+if(a){if(iC){bg="#10b98110";bd="#10b981";tc="#6ee7b7"}else if(iS){bg="#ef444410";bd="#ef4444";tc="#fca5a5"}}
+return h("button",{key:i,onClick:()=>oA(i),disabled:a,style:{padding:"12px 14px",background:bg,border:`2px solid ${bd}`,borderRadius:10,textAlign:"left",color:tc,fontSize:12,fontWeight:600,display:"flex",alignItems:"center",gap:8}},
+h("span",{style:{width:22,height:22,borderRadius:"50%",border:`2px solid ${a&&iC?"#10b981":a&&iS?"#ef4444":"#2a3050"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,flexShrink:0,background:a&&iC?"#10b98118":a&&iS?"#ef444418":"transparent",color:a&&iC?"#10b981":a&&iS?"#ef4444":"#4a5070"}},a&&iC?"✓":a&&iS?"✗":String.fromCharCode(65+i)),o)})),
+shE&&h("div",{style:{background:ans===q.c?"#10b98108":"#ef444408",border:`1px solid ${ans===q.c?"#10b98120":"#ef444420"}`,borderRadius:12,padding:14,marginBottom:14,animation:"fadeIn 0.3s"}},
+h("div",{style:{fontSize:12,fontWeight:800,color:ans===q.c?"#10b981":"#ef4444",marginBottom:4}},ans===q.c?"✅ ¡Correcto!":"❌ Incorrecto"),
+h("p",{style:{fontSize:11,color:"#6b7290",lineHeight:1.55,margin:0}},q.e),
+ans===q.c&&str>=2&&h("div",{style:{marginTop:6,fontSize:10,color:"#f59e0b",fontWeight:700}},"+30 XP 🔥")),
+shE&&h("button",{onClick:nQ,style:{width:"100%",padding:"12px",background:"linear-gradient(135deg,#3b82f6,#8b5cf6)",border:"none",borderRadius:10,color:"#fff",fontWeight:800,fontSize:13}},qI<curLv.q.length-1?"Siguiente →":"🏆 Resultados")))}
+
+// RESULTS
+if(screen==="results"&&curLv){
+const t=curLv.q.length,pc=Math.round(cor/t*100),ps=pc>=60;
+return h("div",{style:{background:"#0b0e18",minHeight:"100vh",fontFamily:"'Outfit'",maxWidth:520,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"center",padding:20}},
+h("div",{style:{textAlign:"center",width:"100%",animation:"fadeIn 0.5s"}},
+h("div",{style:{fontSize:56,marginBottom:10}},pc===100?"🏆":ps?"🎉":"📚"),
+h("h2",{style:{fontSize:20,fontWeight:800,fontFamily:"'Syne'",color:ps?"#10b981":"#f59e0b",margin:"0 0 4px"}},pc===100?"¡PERFECTO!":ps?"¡Completado!":"Seguí Practicando"),
+h("p",{style:{color:"#4a5070",fontSize:12,margin:"0 0 20px"}},"Level "+curLv.id+": "+curLv.t),
+h("div",{style:{display:"flex",gap:8,justifyContent:"center",marginBottom:24}},
+[{v:cor+"/"+t,l:"Correctas",c:ps?"#10b981":"#f59e0b"},{v:pc+"%",l:"Score",c:"#3b82f6"},{v:xp,l:"XP",c:"#fbbf24"}].map((s,i)=>
+h("div",{key:i,style:{background:"#10142a",border:"1px solid #1a1f3a",borderRadius:12,padding:"10px 16px"}},
+h("div",{style:{fontSize:22,fontWeight:900,color:s.c}},s.v),
+h("div",{style:{fontSize:9,color:"#4a5070",fontWeight:600}},s.l)))),
+h("div",{style:{display:"flex",gap:8,maxWidth:300,margin:"0 auto"}},
+h("button",{onClick:()=>sLv(curLv),style:{flex:1,padding:"11px",background:"#10142a",border:"1px solid #1a1f3a",borderRadius:10,color:"#6b7290",fontWeight:700,fontSize:12}},"🔄"),
+h("button",{onClick:()=>{setScreen("map");setSd(curLv.d)},style:{flex:2,padding:"11px",background:"linear-gradient(135deg,#3b82f6,#8b5cf6)",border:"none",borderRadius:10,color:"#fff",fontWeight:800,fontSize:13}},"🗺️ Mapa"))))}
+return null}
+
+ReactDOM.createRoot(document.getElementById("root")).render(h(IBApp));
+</script>
+<script>(function(){if(!window.FREE_MODE)return;var shown=false;function showPaywall(){if(shown)return;shown=true;var d=document.createElement("div");d.className="paywall-overlay";d.innerHTML='<div class="paywall-box"><h2>🔒 Nivel Completo!</h2><p>Completaste los 2 niveles gratuitos de IB Academy.</p><p>Desbloqueá los 34 niveles y seguí tu camino a Wall Street.</p><a href="https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=310182448-129df16f-dfa8-4425-9e50-66047d2c0976" class="paywall-btn">🎮 Juego Completo - $6.9 USD</a><br><a href="https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=310182448-129df16f-dfa8-4425-9e50-66047d2c0976" class="paywall-btn secondary">🚀 Pro Pack - $19 USD</a></div>';document.body.appendChild(d)}setInterval(function(){try{var saves=["ib_academy_progress","ibAcademyProgress","ib-academy-save","gameProgress"];for(var i=0;i<saves.length;i++){var s=localStorage.getItem(saves[i]);if(s){var d=JSON.parse(s);if(d.xp&&d.xp>200){showPaywall();return}if(d.completedLevels&&(d.completedLevels.length||Object.keys(d.completedLevels).length)>=2){showPaywall();return}}}}catch(e){}var xpEls=document.querySelectorAll("*");for(var j=0;j<xpEls.length;j++){if(xpEls[j].textContent&&xpEls[j].textContent.match&&xpEls[j].textContent.match(/\d+\s*XP/)&&xpEls[j].children.length===0){var xp=parseInt(xpEls[j].textContent);if(xp>200){showPaywall();return}}}},3000)})();</script></body>
+</html>
