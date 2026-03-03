@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-<title>IB Academy — Wall Street RPG</title>
+<title>IB Academy Free — Wall Street RPG</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏦</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
@@ -23,7 +23,7 @@ button{font-family:inherit;cursor:pointer}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
-<script>window.FREE_MODE=true;window.MAX_FREE_LEVELS=2;</script><style>.paywall-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,10,20,0.95);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:system-ui,-apple-system,sans-serif}.paywall-box{background:#fff;border-radius:16px;padding:48px 40px;text-align:center;max-width:400px;margin:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}.paywall-box h2{color:#1a1a2e;font-size:24px;margin:0 0 8px;font-weight:700}.paywall-box .sub{color:#8b7355;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:20px}.paywall-box p{color:#6b7280;font-size:15px;line-height:1.6;margin:0 0 28px}.paywall-btn{display:block;width:100%;box-sizing:border-box;margin:10px 0;padding:14px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;cursor:pointer;border:none;text-align:center}.paywall-btn.primary{background:#1a1a2e;color:#fff}.paywall-btn.secondary{background:#8b7355;color:#fff}.paywall-btn:hover{opacity:0.9}.paywall-divider{color:#d1d5db;font-size:12px;margin:4px 0}</style></head>
+</head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
@@ -198,7 +198,7 @@ q:[{q:"Superday interviews:",o:["1-2","3-4","4-6","10+"],c:2,e:"4-6."},{q:"Start
 ];
 
 // ===================== ISOMETRIC BUILDING COMPONENT =====================
-const IsoBld=({x,y,w,depth,height,color,roofColor,icon,label,progress,allDone,onClick,floors})=>{
+const IsoBld=({x,y,w,depth,height,color,roofColor,icon,label,progress,allDone,onClick,locked,floors})=>{
 const darken=(c,a)=>c+a;
 const topW=w;const topD=depth;
 // Isometric transforms
@@ -214,7 +214,7 @@ const topFace=color;
 const winRows=floors||4;
 const winCols=Math.max(2,Math.floor(w/20));
 
-return h("g",{onClick,className:"iso-bld",style:{"--glow":color,cursor:"pointer"},transform:`translate(${x},${y})`},
+return h("g",{onClick,className:"iso-bld",style:{opacity:locked?0.35:1,"--glow":color,cursor:"pointer"},transform:`translate(${x},${y})`},
 // Shadow
 h("ellipse",{cx:0,cy:height*0.52+10,rx:w*0.7,ry:depth*0.3,fill:"#00000025",filter:"blur(4px)"}),
 
@@ -390,9 +390,9 @@ h("circle",{cx:0,cy:-22,r:3,fill:"#fbbf24",opacity:0.5}),
 h("circle",{cx:0,cy:-22,r:8,fill:"#fbbf24",opacity:0.06}))),
 
 // Buildings
-blds.map(b=>{const pr=dP[b.d.id];return h(IsoBld,{key:b.d.id,x:b.x,y:b.y,w:b.w,depth:b.dp,height:b.ht,
+blds.map(b=>{const pr=dP[b.d.id];const _locked=b.d.id!=="basics";return h(IsoBld,{key:b.d.id,x:b.x,y:b.y,w:b.w,depth:b.dp,height:b.ht,
 color:b.d.color,roofColor:b.d.color,icon:b.d.icon,label:b.d.name,
-progress:pr.done+"/"+pr.tot,allDone:pr.pct===100,floors:b.fl,
+progress:pr.done+"/"+pr.tot,allDone:pr.pct===100,floors:b.fl,locked:_locked,
 onClick:()=>setSd(b.d.id)})}),
 
 // Bottom label
@@ -508,5 +508,27 @@ return null}
 
 ReactDOM.createRoot(document.getElementById("root")).render(h(IBApp));
 </script>
-<script>(function(){if(!window.FREE_MODE)return;var shown=false;function showPaywall(){if(shown)return;shown=true;var d=document.createElement("div");d.className="paywall-overlay";d.innerHTML='<div class="paywall-box"><div class="sub">Demo completada</div><h2>Desbloqué el juego completo</h2><p>Completaste los 2 niveles gratuitos. Accede a los 34 niveles en 9 distritos y dominá Investment Banking.</p><a href="https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=310182448-129df16f-dfa8-4425-9e50-66047d2c0976" class="paywall-btn primary">Juego Completo — $6.9 USD</a><div class="paywall-divider">o</div><a href="https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=310182448-129df16f-dfa8-4425-9e50-66047d2c0976" class="paywall-btn secondary">Pro Pack — $19 USD</a></div>';document.body.appendChild(d)}setInterval(function(){try{var keys=["ib_academy_progress","ibAcademyProgress","ib-academy-save","gameProgress","ibacademy"];for(var i=0;i<keys.length;i++){var s=localStorage.getItem(keys[i]);if(s){var d=JSON.parse(s);var xp=d.xp||d.totalXp||d.score||0;var completed=0;if(d.completedLevels){completed=Array.isArray(d.completedLevels)?d.completedLevels.length:Object.keys(d.completedLevels).length}if(d.completed){completed=Array.isArray(d.completed)?d.completed.length:Object.keys(d.completed).length}if(xp>200||completed>=2){showPaywall();return}}}}catch(e){}},3000)})();</script></body>
+
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+  var style=document.createElement("style");
+  style.textContent=".lock-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center}.lock-box{background:#10142a;border:1px solid #8b7355;border-radius:16px;padding:40px;text-align:center;max-width:380px;margin:20px;font-family:Outfit,sans-serif}.lock-box h3{color:#d4af37;font-size:22px;margin:0 0 12px}.lock-box p{color:#94a3b8;font-size:15px;line-height:1.6;margin:0 0 20px}.lock-btn{display:inline-block;padding:12px 32px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px;margin:6px;cursor:pointer;border:none}.lock-btn.primary{background:#8b7355;color:#fff}.lock-btn.secondary{background:transparent;border:1px solid #8b7355;color:#8b7355}";
+  document.head.appendChild(style);
+  document.body.addEventListener("click",function(e){
+    if(e.target.classList.contains("lock-overlay")||e.target.classList.contains("lock-close")){
+      var ov=document.querySelector(".lock-overlay");
+      if(ov)ov.remove();
+    }
+  });
+  var origSetLk=window.setLk;
+  window._showLockPopup=function(){
+    if(document.querySelector(".lock-overlay"))return;
+    var d=document.createElement("div");
+    d.className="lock-overlay";
+    d.innerHTML='<div class="lock-box"><h3>\ud83d\udd12 Distrito Bloqueado</h3><p>Este distrito est\u00e1 disponible en la versi\u00f3n completa. Desbloque\u00e1 los 34 niveles.</p><a href="https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=310182448-a9435f6c-b8f7-46dd-a515-dfe959e507fa" class="lock-btn primary">Desbloquear Juego — $6.9 USD</a><br><a href="https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=310182448-129df16f-dfa8-4425-9e50-66047d2c0976" class="lock-btn primary" style="background:#4a5568">Pro Pack — $19 USD</a><br><button class="lock-btn secondary lock-close" style="margin-top:8px">Volver</button></div>';
+    document.body.appendChild(d);
+  };
+});
+</script>
+</body>
 </html>
