@@ -375,7 +375,7 @@ footer .links a:hover{color:var(--accent)}
           <li>Flashcards de conceptos clave</li>
           <li>Acceso a actualizaciones futuras</li>
         </ul>
-        <button class="btn-primary" onclick="document.getElementById('email-section').scrollIntoView({behavior:'smooth'})">Obtener Pro Pack →</button>
+        <button class="btn-primary" onclick="window.open('https://link.mercadopago.com.ar/ibacademy','_blank')">Obtener Pro Pack →</button>
       </div>
     </div>
   </div>
@@ -441,6 +441,13 @@ function handleEmail(){
     setTimeout(function(){input.style.borderColor=''},2000);
     return;
   }
+  // Kit (ConvertKit) integration
+  try{
+    var xhr=new XMLHttpRequest();
+    xhr.open('POST','https://api.convertkit.com/v3/forms/9154024/subscribe');
+    xhr.setRequestHeader('Content-Type','application/json');
+    xhr.send(JSON.stringify({api_key:'BC3V-BWP9iQdLDZpoiuotg',email:email}));
+  }catch(e){}
   document.getElementById('email-form-wrap').style.display='none';
   document.getElementById('email-success').classList.add('show');
   try{
