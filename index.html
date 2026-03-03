@@ -398,7 +398,7 @@ footer .links a:hover{color:var(--accent)}
         <p style="font-size:2rem;margin-bottom:12px">🎉</p>
         <p>¡Listo! Revisá tu inbox.</p>
         <p style="color:#5a6380;font-size:0.85rem;margin-top:8px">Te mandamos el link de acceso. Si no lo ves, revisá spam.</p>
-        <a href="#email-section" style="display:inline-block;margin-top:20px;padding:15px 32px;background:#9a7b3c;color:#fff;border:none;border-radius:10px;font-size:0.95rem;font-weight:700;text-decoration:none;font-family:inherit;letter-spacing:0.02em">🎮 Jugar Ahora →</a>
+        <a href="game-free.html" style="display:inline-block;margin-top:20px;padding:15px 32px;background:#9a7b3c;color:#fff;border:none;border-radius:10px;font-size:0.95rem;font-weight:700;text-decoration:none;font-family:inherit;letter-spacing:0.02em">🎮 Jugar Ahora →</a>
       </div>
     </div>
   </div>
@@ -462,18 +462,20 @@ document.getElementById('email-input').addEventListener('keydown',function(e){
 });
 </script>
 
+
 <script>
-(function(){
-  var observer = new MutationObserver(function(mutations){
-    var el = document.getElementById("email-success");
-    if(el && el.style.display === "block"){
-      observer.disconnect();
-      setTimeout(function(){ window.location.href = "game-free.html"; }, 2500);
+document.addEventListener("DOMContentLoaded",function(){
+  var origHandle = window.handleEmail;
+  if(!origHandle) return;
+  // Watch for success element appearing
+  setInterval(function(){
+    var s = document.getElementById("email-success");
+    if(s && s.style.display==="block" && !s.dataset.done){
+      s.dataset.done="1";
+      s.innerHTML = s.innerHTML + '<br><a href="game-free.html" style="display:inline-block;margin-top:16px;padding:12px 32px;background:#8b7355;color:#fff;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px">\ud83c\udfae Jugar Ahora \u2192</a>';
     }
-  });
-  var target = document.getElementById("email-section") || document.body;
-  observer.observe(target, {attributes:true, subtree:true, attributeFilter:["style"]});
-})();
+  }, 500);
+});
 </script>
 </body>
 </html>
