@@ -354,7 +354,7 @@ footer .links a:hover{color:var(--accent)}
         <div style="font-size:42px;font-weight:800;color:var(--text);margin:12px 0">Free</div>
         <div style="color:var(--muted);font-size:14px;margin-bottom:24px;font-style:italic">Demo — 2 niveles</div>
         <div style="text-align:left;color:var(--muted);font-size:14px;line-height:2.2">✓ 2 niveles del Financial District<br>✓ Sistema de XP y ranking<br>✓ Explicaciones detalladas<br><span style="opacity:0.4">– 32 niveles bloqueados</span><br><span style="opacity:0.4">– Sin materiales extra</span></div>
-        <a href="#email-section" style="display:block;margin-top:24px;padding:14px;background:transparent;border:1px solid var(--muted);border-radius:10px;color:var(--text);text-decoration:none;font-weight:600;font-size:14px;transition:all 0.3s">Probar Demo →</a>
+        <a href="game-free.html" style="display:block;margin-top:24px;padding:14px;background:transparent;border:1px solid var(--muted);border-radius:10px;color:var(--text);text-decoration:none;font-weight:600;font-size:14px;transition:all 0.3s">Probar Demo →</a>
       </div>
       <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(139,115,85,0.3);border-radius:16px;padding:32px;text-align:center">
         <div style="font-size:13px;color:#8b7355;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">Intern</div>
@@ -392,7 +392,7 @@ footer .links a:hover{color:var(--accent)}
         <p style="font-size:2rem;margin-bottom:12px">🎉</p>
         <p>¡Listo! Revisá tu inbox.</p>
         <p style="color:#5a6380;font-size:0.85rem;margin-top:8px">Te mandamos el link de acceso. Si no lo ves, revisá spam.</p>
-        <a href="#email-section" style="display:inline-block;margin-top:20px;padding:15px 32px;background:#9a7b3c;color:#fff;border:none;border-radius:10px;font-size:0.95rem;font-weight:700;text-decoration:none;font-family:inherit;letter-spacing:0.02em">🎮 Jugar Ahora →</a>
+        <a href="game-free.html" style="display:inline-block;margin-top:20px;padding:15px 32px;background:#9a7b3c;color:#fff;border:none;border-radius:10px;font-size:0.95rem;font-weight:700;text-decoration:none;font-family:inherit;letter-spacing:0.02em">🎮 Jugar Ahora →</a>
       </div>
     </div>
   </div>
@@ -454,6 +454,20 @@ function handleEmail(){
 document.getElementById('email-input').addEventListener('keydown',function(e){
   if(e.key==='Enter')handleEmail();
 });
+</script>
+
+<script>
+(function(){
+  var observer = new MutationObserver(function(mutations){
+    var el = document.getElementById("email-success");
+    if(el && el.style.display === "block"){
+      observer.disconnect();
+      setTimeout(function(){ window.location.href = "game-free.html"; }, 2500);
+    }
+  });
+  var target = document.getElementById("email-section") || document.body;
+  observer.observe(target, {attributes:true, subtree:true, attributeFilter:["style"]});
+})();
 </script>
 </body>
 </html>
