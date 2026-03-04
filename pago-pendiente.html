@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IB Academy — Pago Pendiente</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#fafaf8;color:#4a4a42;min-height:100vh;display:flex;flex-direction:column}
+
+nav{padding:20px 48px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(0,0,0,0.06);background:rgba(250,250,248,0.92);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:8px;font-family:'DM Serif Display',serif;font-size:20px;color:#4a4a42;text-decoration:none}
+.logo-badge{display:inline-block;width:24px;height:14px;background:#8b7355;border-radius:3px}
+.nav-btn{padding:10px 24px;border-radius:10px;border:1px solid rgba(139,115,85,0.3);color:#8b7355;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;background:transparent;text-decoration:none;transition:all .2s}
+.nav-btn:hover{background:rgba(139,115,85,0.06)}
+
+.main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center}
+.pending-icon{width:80px;height:80px;background:rgba(243,189,67,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:32px}
+.main h1{font-family:'DM Serif Display',serif;font-size:clamp(32px,5vw,48px);color:#2a2a24;line-height:1.2;margin-bottom:16px}
+.main h1 em{font-style:italic;color:#d4a017}
+.subtitle{font-size:18px;color:#6b6b60;max-width:520px;line-height:1.6;margin-bottom:40px}
+
+.info{max-width:520px;width:100%;background:#fff;border:1px solid rgba(0,0,0,0.06);border-radius:16px;padding:32px;text-align:left;margin-bottom:40px}
+.info h3{font-size:16px;font-weight:700;color:#2a2a24;margin-bottom:16px}
+.info ul{list-style:none;padding:0}
+.info li{font-size:14px;color:#6b6b60;line-height:1.6;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.04)}
+.info li:last-child{border-bottom:none}
+.info li::before{content:'→ ';color:#d4a017;font-weight:600}
+
+.cta-btn{display:inline-block;padding:14px 36px;background:#8b7355;color:#fff;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;transition:all .2s;border:none;cursor:pointer;margin-bottom:12px}
+.cta-btn:hover{background:#7a6448;transform:translateY(-1px)}
+.secondary-link{font-size:14px;color:#8b7355;text-decoration:underline}
+
+footer{padding:24px 48px;border-top:1px solid rgba(0,0,0,0.06);text-align:center;font-size:12px;color:#a0a090;margin-top:auto}
+footer a{color:#8b7355;text-decoration:none}
+
+@media(max-width:600px){
+  nav{padding:16px 20px}
+  .main{padding:48px 20px}
+  .info{padding:24px 20px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">🏦 IB <span>Academy</span> <span class="logo-badge"></span></a>
+  <a href="index.html" class="nav-btn">Volver al inicio →</a>
+</nav>
+
+<div class="main">
+  <div class="pending-icon">⏳</div>
+  
+  <h1>Pago <em>pendiente.</em></h1>
+  <p class="subtitle">Tu pago está siendo procesado. En cuanto se confirme, recibirás todo en tu correo de MercadoPago automáticamente.</p>
+
+  <div class="info">
+    <h3>¿Qué puede estar pasando?</h3>
+    <ul>
+      <li>Elegiste pagar en efectivo (Rapipago, Pago Fácil) y todavía no se acreditó</li>
+      <li>Tu banco está verificando la transacción</li>
+      <li>MercadoPago está revisando el pago por seguridad</li>
+    </ul>
+  </div>
+
+  <p style="font-size:14px;color:#6b6b60;max-width:480px;line-height:1.6;margin-bottom:32px">Generalmente se acredita en minutos, pero puede demorar hasta 48 hs si pagaste en efectivo. No hace falta que hagas nada más.</p>
+
+  <a href="index.html" class="cta-btn">🏠 Volver al inicio →</a>
+  <br><br>
+  <a href="mailto:Nocturnearg@gmail.com?subject=IB%20Academy%20-%20Pago%20pendiente" class="secondary-link">¿Pasaron más de 48 hs? Escribinos</a>
+</div>
+
+<footer>
+  © 2026 IB Academy. Hecho para futuros bankers. &nbsp;·&nbsp; <a href="index.html">Volver al inicio</a>
+</footer>
+
+</body>
+</html>
