@@ -23,21 +23,17 @@ html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 ::selection{background:var(--accent);color:#000}
 a{color:var(--accent);text-decoration:none}
-
 /* TYPOGRAPHY */
 h1,h2,h3{font-family:'Instrument Serif',serif;color:var(--heading);font-weight:400}
 h1{font-size:clamp(2.8rem,7vw,5rem);line-height:1.05;letter-spacing:-0.02em}
 h2{font-size:clamp(2rem,4.5vw,3.2rem);line-height:1.15;letter-spacing:-0.01em}
 h3{font-size:clamp(1.3rem,2.5vw,1.6rem);line-height:1.3}
 p{line-height:1.7;font-size:clamp(0.95rem,1.1vw,1.05rem)}
-
 /* LAYOUT */
 .container{max-width:1100px;margin:0 auto;padding:0 24px}
 section{padding:100px 0}
-
 /* NOISE TEXTURE */
 body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.25}
-
 /* ANIMATIONS */
 @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -46,11 +42,9 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
 @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-
 .reveal{opacity:1;transform:translateY(0);transition:opacity 0.8s ease,transform 0.8s ease}
 .reveal.hidden{opacity:0;transform:translateY(30px)}
 .reveal.visible{opacity:1;transform:translateY(0)}
-
 /* ======== NAV ======== */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 0;transition:all 0.4s;background:transparent}
 nav.scrolled{background:rgba(250,250,248,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 0}
@@ -60,7 +54,6 @@ nav .container{display:flex;align-items:center;justify-content:space-between}
 .logo-badge{background:var(--accent);color:#000;font-family:'DM Sans',sans-serif;font-size:0.55rem;font-weight:700;padding:3px 7px;border-radius:4px;letter-spacing:1.5px;text-transform:uppercase}
 nav .cta-sm{padding:10px 24px;background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.3s}
 nav .cta-sm:hover{background:var(--accent);color:#000}
-
 /* ======== HERO ======== */
 .hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding-top:80px}
 .hero::before{content:'';position:absolute;top:-200px;right:-200px;width:700px;height:700px;background:radial-gradient(circle,rgba(201,165,92,0.06) 0%,transparent 70%);pointer-events:none}
@@ -72,19 +65,16 @@ nav .cta-sm:hover{background:var(--accent);color:#000}
 .hero h1 em{font-style:italic;color:var(--accent)}
 .hero-sub{font-size:clamp(1.05rem,1.5vw,1.2rem);color:#7a8299;margin:24px 0 36px;max-width:560px;animation:fadeUp 0.8s ease 0.35s both}
 .hero-actions{display:flex;gap:14px;flex-wrap:wrap;animation:fadeUp 0.8s ease 0.5s both}
-
 /* BUTTONS */
 .btn-primary{padding:15px 32px;background:var(--accent);color:#000;border:none;border-radius:10px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.3s;letter-spacing:0.02em}
 .btn-primary:hover{background:#d4b06a;transform:translateY(-1px);box-shadow:0 8px 30px rgba(201,165,92,0.25)}
 .btn-secondary{padding:15px 32px;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:10px;font-size:0.95rem;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.3s}
 .btn-secondary:hover{border-color:#3a4260;background:#faf8f3}
-
 /* SOCIAL PROOF TICKER */
 .ticker-wrap{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px 0;overflow:hidden;margin-top:-1px}
 .ticker{display:flex;gap:48px;animation:ticker 30s linear infinite;width:max-content}
 .ticker span{font-size:0.85rem;color:#4a5070;white-space:nowrap;font-weight:500;display:flex;align-items:center;gap:8px}
 .ticker span b{color:var(--accent);font-weight:600}
-
 /* ======== FEATURES GRID ======== */
 .features{background:var(--bg)}
 .features-header{text-align:center;max-width:600px;margin:0 auto 60px}
@@ -97,7 +87,6 @@ nav .cta-sm:hover{background:var(--accent);color:#000}
 .feat-icon{font-size:2rem;margin-bottom:16px;display:block}
 .feat-card h3{margin-bottom:10px;font-size:1.2rem}
 .feat-card p{color:#5a6380;font-size:0.9rem;line-height:1.65}
-
 /* ======== LEVELS PREVIEW ======== */
 .levels{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .levels-header{text-align:center;max-width:550px;margin:0 auto 50px}
@@ -109,7 +98,6 @@ nav .cta-sm:hover{background:var(--accent);color:#000}
 .district-info h3{font-size:0.95rem;margin-bottom:3px}
 .district-info p{font-size:0.78rem;color:#4a5070}
 .district-levels{font-size:0.7rem;color:var(--accent);font-weight:600;margin-top:4px;letter-spacing:0.5px;text-transform:uppercase}
-
 /* ======== PRICING ======== */
 .pricing{background:var(--bg)}
 .pricing-header{text-align:center;max-width:600px;margin:0 auto 50px}
@@ -127,7 +115,6 @@ nav .cta-sm:hover{background:var(--accent);color:#000}
 .price-features li::before{content:'✓';color:var(--accent);font-weight:700;font-size:0.85rem}
 .price-card .btn-primary{width:100%;text-align:center;display:block}
 .price-card .btn-secondary{width:100%;text-align:center;display:block}
-
 /* ======== EMAIL CAPTURE ======== */
 .email-section{background:linear-gradient(135deg,#f4f3f0,#f0ede6);border-top:1px solid var(--border);position:relative;overflow:hidden}
 .email-section::before{content:'';position:absolute;top:50%;left:50%;width:800px;height:800px;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(201,165,92,0.04) 0%,transparent 60%);pointer-events:none}
@@ -143,7 +130,18 @@ nav .cta-sm:hover{background:var(--accent);color:#000}
 .email-success{display:none;animation:fadeUp 0.5s ease}
 .email-success.show{display:block}
 .email-success p{color:var(--accent);font-size:1rem;font-weight:600}
-
+/* ======== MISSION ======== */
+.mission-section{padding:80px 0;background:var(--bg)}
+.mission-block{max-width:640px;margin:0 auto;text-align:center;padding:44px 40px;background:rgba(139,115,85,0.04);border:1px solid rgba(139,115,85,0.12);border-radius:20px;position:relative}
+.mission-block::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:60px;height:3px;background:var(--accent);border-radius:2px}
+.mission-icon{font-size:2.4rem;margin-bottom:16px;margin-top:8px}
+.mission-block h2{margin-bottom:16px}
+.mission-block h2 em{color:var(--accent)}
+.mission-text{font-size:0.95rem;color:#5a6380;line-height:1.75;max-width:520px;margin:0 auto}
+.mission-text .hl{color:var(--accent);font-weight:600}
+.mission-signature{margin-top:28px;padding-top:22px;border-top:1px solid rgba(139,115,85,0.1)}
+.mission-signature .sig-name{font-family:'Instrument Serif',serif;font-style:italic;font-size:1.1rem;color:var(--heading);margin-bottom:4px}
+.mission-signature .sig-title{font-size:0.72rem;color:var(--accent);font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
 /* ======== FOOTER ======== */
 footer{padding:40px 0;border-top:1px solid var(--border)}
 footer .container{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
@@ -151,7 +149,6 @@ footer p{font-size:0.8rem;color:#2a3050}
 footer .links{display:flex;gap:24px}
 footer .links a{font-size:0.8rem;color:#3a4260;transition:color 0.3s}
 footer .links a:hover{color:var(--accent)}
-
 /* RESPONSIVE */
 @media(max-width:640px){
   section{padding:70px 0}
@@ -165,11 +162,12 @@ footer .links a:hover{color:var(--accent)}
   .districts-grid{grid-template-columns:1fr}
   .pricing-grid{grid-template-columns:1fr}
   footer .container{flex-direction:column;text-align:center}
+  .mission-section{padding:60px 0}
+  .mission-block{padding:32px 24px}
 }
 </style>
 <style>@media(max-width:768px){#pricing [style*="grid-template-columns:repeat(3"]{grid-template-columns:1fr!important}}</style></head>
 <body>
-
 <!-- NAV -->
 <nav id="nav">
   <div class="container">
@@ -177,7 +175,6 @@ footer .links a:hover{color:var(--accent)}
     <button class="cta-sm" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Empezar →</button>
   </div>
 </nav>
-
 <!-- HERO -->
 <section class="hero">
   <div class="container">
@@ -192,7 +189,6 @@ footer .links a:hover{color:var(--accent)}
     </div>
   </div>
 </section>
-
 <!-- TICKER -->
 <div class="ticker-wrap">
   <div class="ticker" id="ticker">
@@ -214,7 +210,6 @@ footer .links a:hover{color:var(--accent)}
     <span>🏗️ LBO fundamentals hasta model building</span>
   </div>
 </div>
-
 <!-- FEATURES -->
 <section class="features" id="features">
   <div class="container">
@@ -256,7 +251,6 @@ footer .links a:hover{color:var(--accent)}
     </div>
   </div>
 </section>
-
 <!-- LEVELS -->
 <section class="levels" id="levels">
   <div class="container">
@@ -340,7 +334,6 @@ footer .links a:hover{color:var(--accent)}
     </div>
   </div>
 </section>
-
 <!-- PRICING -->
 <section class="pricing" id="pricing">
   <div class="container">
@@ -361,7 +354,7 @@ footer .links a:hover{color:var(--accent)}
       <div style="background:rgba(255,255,255,0.03);border-radius:16px;padding:36px 28px;text-align:center;display:flex;flex-direction:column;justify-content:space-between;min-height:440px;border:1px solid rgba(139,115,85,0.3)">
         <div>
           <div style="font-size:12px;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;font-weight:600;color:#8b7355">Intern</div>
-          <div style="font-size:44px;font-weight:800;color:var(--text);margin:8px 0">$6.9 <span style="font-size:20px;font-weight:400">USD</span></div>
+          <div style="font-size:44px;font-weight:800;color:var(--text);margin:8px 0">$6<span style="font-size:22px;vertical-align:super;font-weight:700">90</span> <span style="font-size:20px;font-weight:400">USD</span></div>
           <div style="color:var(--muted);font-size:13px;margin-bottom:20px;font-style:italic">Juego completo — 34 niveles<br><span style="font-size:11px;color:#8b7355;font-style:normal;font-weight:600">Pago único — acceso de por vida</span></div>
           <div style="text-align:left;color:var(--muted);font-size:13px;line-height:2.2;flex:1">✓ 34 niveles en 9 distritos<br>✓ De Financial District a Pitch Tower<br>✓ Sistema completo de XP y ranking<br>✓ Explicaciones detalladas por nivel<br><span style="opacity:0.35">– Sin materiales extra</span></div>
         </div>
@@ -380,7 +373,6 @@ footer .links a:hover{color:var(--accent)}
     </div>
   </div>
 </section>
-
 <!-- EMAIL CAPTURE -->
 <section class="email-section" id="email-section">
   <div class="container">
@@ -403,7 +395,21 @@ footer .links a:hover{color:var(--accent)}
     </div>
   </div>
 </section>
-
+<!-- MISSION -->
+<section class="mission-section">
+  <div class="container">
+    <div class="mission-block reveal">
+      <div class="mission-icon">🤝</div>
+      <h2>Nuestra <em>misión</em></h2>
+      <p class="mission-text">Todos los fondos recaudados se destinan a <span class="hl">mantener la infraestructura de IB Academy</span>, desarrollar nuevo contenido educativo y filantropía académica. Las ganancias van al <span class="hl">desarrollo de la industria y a ayudar a los estudiantes</span> que quieren entrar al mundo de Investment Banking. Ya hago dinero en banking — esto es para la comunidad.</p>
+      <div class="mission-signature">
+        <p class="sig-name">— Anonymous Banker</p>
+        <span class="sig-title">Fundador, IB Academy</span>
+      </div>
+      <p style="margin-top:20px;font-size:0.82rem;color:#7a8299;line-height:1.6;font-style:italic">Si no podés pagar el Banker Pack pero te morís por entrar en IB, <a href="/cdn-cgi/l/email-protection#086b67667c696b7c6748616a696b696c6d6571266b6765" style="color:var(--accent);font-weight:600;text-decoration:underline">escribime</a> y te doy acceso.</p>
+    </div>
+  </div>
+</section>
 <!-- FOOTER -->
 <footer>
   <div class="container">
@@ -411,12 +417,11 @@ footer .links a:hover{color:var(--accent)}
     <div class="links">
       <a href="#">Instagram</a>
       <a href="#">Twitter</a>
-      <a href="mailto:contacto@ibacademy.com">Contacto</a>
+      <a href="/cdn-cgi/l/email-protection#cba8a4a5bfaaa8bfa48ba2a9aaa8aaafaea6b2e5a8a4a6">Contacto</a>
     </div>
   </div>
 </footer>
-
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 var reveals=document.querySelectorAll('.reveal');
 var observer=new IntersectionObserver(function(entries){
   entries.forEach(function(e,i){
@@ -427,12 +432,10 @@ var observer=new IntersectionObserver(function(entries){
   });
 },{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
 reveals.forEach(function(el){el.classList.add('hidden');observer.observe(el)});
-
 var nav=document.getElementById('nav');
 window.addEventListener('scroll',function(){
   nav.classList.toggle('scrolled',window.scrollY>60);
 });
-
 function handleEmail(){
   var input=document.getElementById('email-input');
   var email=input.value.trim();
@@ -456,26 +459,16 @@ function handleEmail(){
     localStorage.setItem('ib_emails',JSON.stringify(emails));
   }catch(e){}
 }
-
 document.getElementById('email-input').addEventListener('keydown',function(e){
   if(e.key==='Enter')handleEmail();
 });
 </script>
-
-
 <script>
 document.addEventListener("DOMContentLoaded",function(){
   var origHandle = window.handleEmail;
   if(!origHandle) return;
-  // Watch for success element appearing
   setInterval(function(){
     var s = document.getElementById("email-success");
     if(s && s.style.display==="block" && !s.dataset.done){
       s.dataset.done="1";
-      s.innerHTML = s.innerHTML + '<br><a href="game-free.html" style="display:inline-block;margin-top:16px;padding:12px 32px;background:#8b7355;color:#fff;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px">\ud83c\udfae Jugar Ahora \u2192</a>';
-    }
-  }, 500);
-});
-</script>
-</body>
-</html>
+      s.innerHTML = s.innerHTML + '<br><a href="game-free.html" style="display:inline-block;margin-top:16px;padding
